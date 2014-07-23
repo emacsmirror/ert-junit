@@ -48,13 +48,16 @@ the tests)."
 		  (find-file result-file)
 		  (delete-region (point-min) (point-max))
 		  (insert "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
-		  (insert (format "<testsuite name=\"ERT\" tests=\"%d\" errors=\"%d\" skipped=\"%d\" failures=\"%d\" time=\"%f\">"
+		  (insert (format "<testsuite name=\"ERT\" timestamp=\"%s\" hostname=\"%s\" tests=\"%d\" failures=\"%d\" errors=\"%d\" time=\"%f\" skipped=\"%d\" >"
+						  (ert--format-time-iso8601 (ert--stats-start-time stats)) ; timestamp
+						  (system-name) ;hostname
 						  (ert-stats-total stats) ;tests
-						  0; errors
-						  (- (ert-stats-total stats) (ert-stats-completed stats)) ;skipped
 						  (ert-stats-completed-unexpected stats) ;failures
+						  0; errors
+						  ;;time
 						  (float-time (time-subtract (ert--stats-end-time stats)
 													 (ert--stats-start-time stats)))
+						  (- (ert-stats-total stats) (ert-stats-completed stats)) ;skipped
 						  )
 				  "\n")
 		  (maphash (lambda (key value)
