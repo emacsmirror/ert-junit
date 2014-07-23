@@ -71,11 +71,11 @@ the tests)."
 					 (let ((test-status (aref (ert--stats-test-results stats) value)))
 					   (etypecase test-status
 						 (ert-test-passed "")
-						 (ert-test-failed (insert " failed=\"")
+						 (ert-test-failed (insert " failure=\"")
 										  (ert--insert-infos test-status)
 										  ;(ert--print-backtrace (ert-test-result-with-condition-backtrace test-status))
 										  (insert "\""))
-						 (ert-test-quit (insert " failed=\"quit\"")
+						 (ert-test-quit (insert " failure=\"quit\"")
 										)))
 					 (insert ">"
 							 "</testcase>" "\n"
