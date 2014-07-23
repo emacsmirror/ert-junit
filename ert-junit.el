@@ -62,7 +62,7 @@ the tests)."
 				  "\n")
 		  (maphash (lambda (key value)
 					 (insert " "
-							 (format "<testcase name=\"%s\" classname=\"ert\" time=\"%f\""
+							 (format "<testcase name=\"%s\" classname=\"ert\" time=\"%f\">"
 									 key ;name
 									 ;; time
 									 (float-time (time-subtract (aref (ert--stats-test-end-times stats) value)
@@ -71,13 +71,13 @@ the tests)."
 					 (let ((test-status (aref (ert--stats-test-results stats) value)))
 					   (etypecase test-status
 						 (ert-test-passed "")
-						 (ert-test-failed (insert " failure=\"")
+						 (ert-test-failed (insert "<failure>")
 										  (ert--insert-infos test-status)
 										  ;(ert--print-backtrace (ert-test-result-with-condition-backtrace test-status))
-										  (insert "\""))
-						 (ert-test-quit (insert " failure=\"quit\"")
+										  (insert "</failure>"))
+						 (ert-test-quit (insert " <failure>quit</failure>")
 										)))
-					 (insert ">"
+					 (insert ""
 							 "</testcase>" "\n"
 							 ))
 				   (ert--stats-test-map stats))
