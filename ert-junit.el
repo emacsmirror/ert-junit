@@ -72,7 +72,7 @@ the tests)."
 					   (unless (ert-test-result-expected-p (aref (ert--stats-tests stats) value) test-status)
 					   (etypecase test-status
 						 (ert-test-passed "")
-						 (ert-test-failed (insert "<failure>")
+						 (ert-test-failed (insert "<failure message=\"test\" type=\"type\">")
 										  (ert--insert-infos test-status)
 										  ;(ert--print-backtrace (ert-test-result-with-condition-backtrace test-status))
 										  (insert "</failure>"))
