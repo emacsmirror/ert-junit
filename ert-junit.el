@@ -69,6 +69,7 @@ the tests)."
 																(aref (ert--stats-test-start-times stats) value)))))
 					 ;; success, failure or error
 					 (let ((test-status (aref (ert--stats-test-results stats) value)))
+					   (unless (ert-test-result-expected-p (aref (ert--stats-tests stats) value) test-status)
 					   (etypecase test-status
 						 (ert-test-passed "")
 						 (ert-test-failed (insert "<failure>")
@@ -76,7 +77,7 @@ the tests)."
 										  ;(ert--print-backtrace (ert-test-result-with-condition-backtrace test-status))
 										  (insert "</failure>"))
 						 (ert-test-quit (insert " <failure>quit</failure>")
-										)))
+										))))
 					 (insert ""
 							 "</testcase>" "\n"
 							 ))
