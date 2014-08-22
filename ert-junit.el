@@ -32,49 +32,53 @@
 (require 'ert)
 (eval-when-compile (require 'cl))
 
+(defun ert-generate-junit-report (stats buf)
+  "Generate a JUnit XML report for STATS at point in BUF."
+  (with-current-buffer buf
+	(insert "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
+	(insert (format "<testsuite name=\"ERT\" timestamp=\"%s\" hostname=\"%s\" tests=\"%d\" failures=\"%d\" errors=\"%d\" time=\"%f\" skipped=\"%d\" >"
+					(ert--format-time-iso8601 (ert--stats-start-time stats)) ; timestamp
+					(system-name) ;hostname
+					(ert-stats-total stats) ;tests
+					(ert-stats-completed-unexpected stats) ;failures
+					0; errors
+					;;time
+					(float-time (time-subtract (ert--stats-end-time stats)
+											   (ert--stats-start-time stats)))
+					(- (ert-stats-total stats) (ert-stats-completed stats)) ;skipped
+					)
+			"\n")
+	(maphash (lambda (key value)
+			   (insert " "
+					   (format "<testcase name=\"%s\" classname=\"ert\" time=\"%f\">"
+							   key ;name
+							   ;; time
+							   (float-time (time-subtract (aref (ert--stats-test-end-times stats) value)
+														  (aref (ert--stats-test-start-times stats) value)))))
+			   ;; success, failure or error
+			   (let ((test-status (aref (ert--stats-test-results stats) value)))
+				 (unless (ert-test-result-expected-p (aref (ert--stats-tests stats) value) test-status)
+				   (etypecase test-status
+					 (ert-test-passed "")
+					 (ert-test-failed (insert "<failure message=\"test\" type=\"type\">")
+									  (ert--insert-infos test-status)
+										;(ert--print-backtrace (ert-test-result-with-condition-backtrace test-status))
+									  (insert "</failure>"))
+					 (ert-test-quit (insert " <failure>quit</failure>")
+									))))
+			   (insert "</testcase>" "\n"))
+			 (ert--stats-test-map stats))
+	(insert "</testsuite>" "\n")))
+
 (defun ert-run-tests-junit-batch (result-file &optional selector)
   "Run `ert-tests-batch-selector' and generate JUnit report.
 The report is written to RESULT-FILE and pertains to tests
 selected by SELECTOR."
-  (let ((stats (ert-run-tests-batch selector)))
-	(with-current-buffer (find-file-noselect result-file)
+  (let ((stats (ert-run-tests-batch selector))
+		(buf (find-file-noselect result-file)))
+	(with-current-buffer buf
 	  (delete-region (point-min) (point-max))
-	  (insert "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
-	  (insert (format "<testsuite name=\"ERT\" timestamp=\"%s\" hostname=\"%s\" tests=\"%d\" failures=\"%d\" errors=\"%d\" time=\"%f\" skipped=\"%d\" >"
-					  (ert--format-time-iso8601 (ert--stats-start-time stats)) ; timestamp
-					  (system-name) ;hostname
-					  (ert-stats-total stats) ;tests
-					  (ert-stats-completed-unexpected stats) ;failures
-					  0; errors
-					  ;;time
-					  (float-time (time-subtract (ert--stats-end-time stats)
-												 (ert--stats-start-time stats)))
-					  (- (ert-stats-total stats) (ert-stats-completed stats)) ;skipped
-					  )
-			  "\n")
-	  (maphash (lambda (key value)
-				 (insert " "
-						 (format "<testcase name=\"%s\" classname=\"ert\" time=\"%f\">"
-								 key ;name
-								 ;; time
-								 (float-time (time-subtract (aref (ert--stats-test-end-times stats) value)
-															(aref (ert--stats-test-start-times stats) value)))))
-				 ;; success, failure or error
-				 (let ((test-status (aref (ert--stats-test-results stats) value)))
-				   (unless (ert-test-result-expected-p (aref (ert--stats-tests stats) value) test-status)
-					 (etypecase test-status
-					   (ert-test-passed "")
-					   (ert-test-failed (insert "<failure message=\"test\" type=\"type\">")
-										(ert--insert-infos test-status)
-										;(ert--print-backtrace (ert-test-result-with-condition-backtrace test-status))
-										(insert "</failure>"))
-					   (ert-test-quit (insert " <failure>quit</failure>")
-									  ))))
-				 (insert ""
-						 "</testcase>" "\n"
-						 ))
-			   (ert--stats-test-map stats))
-	  (insert "</testsuite>" "\n")
+	  (ert-generate-junit-report stats buf)
 	  (save-buffer))))
 
 (defun ert-run-xtests-batch-and-exit (&optional selector)
