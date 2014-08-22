@@ -25,7 +25,7 @@
 
 ;;; Commentary:
 
-;; 
+;;
 
 ;;; Code:
 
@@ -56,7 +56,7 @@ The name of the testcase is KEY and VALUE its index into `stats'."
   (insert "</testcase>" "\n"))
   
 
-(defun ert-generate-junit-report (stats buf)
+(defun ert-junit-generate-report (stats buf)
   "Generate a JUnit XML report for STATS at point in BUF."
   (with-current-buffer buf
 	(insert "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
@@ -83,8 +83,8 @@ selected by SELECTOR."
   (let ((stats (ert-run-tests-batch selector))
 		(buf (find-file-noselect result-file)))
 	(with-current-buffer buf
-	  (delete-region (point-min) (point-max))
-	  (ert-generate-junit-report stats buf)
+	  (erase-buffer)
+	  (ert-junit-generate-report stats buf)
 	  (save-buffer))))
 
 (defun ert-run-xtests-batch-and-exit (&optional selector)
@@ -114,4 +114,3 @@ the tests)."
 ;; End:
 (provide 'ert-junit)
 ;;; ert-junit.el ends here
-
