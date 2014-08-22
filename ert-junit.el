@@ -55,6 +55,17 @@ The name of the testcase is KEY and VALUE its index into `stats'."
 					   ))))
   (insert "</testcase>" "\n"))
   
+(defvar ert--results-stats)
+
+(defun ert-junit-report ()
+  "Show a JUnit report for the current `ert' buffer."
+  (interactive)
+  (when (derived-mode-p 'ert-results-mode)
+	(let ((buf (get-buffer-create "*junit*")))
+	  (with-current-buffer buf
+		  (erase-buffer))
+	  (ert-junit-generate-report ert--results-stats buf)
+	  (set-window-buffer nil buf))))
 
 (defun ert-junit-generate-report (stats buf)
   "Generate a JUnit XML report for STATS at point in BUF."
