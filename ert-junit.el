@@ -32,29 +32,49 @@
 (require 'ert)
 (eval-when-compile (require 'cl))
 
-(defun ert-junit-testcase (key value)
+(defun ert-junit--infos-string (result)
+  "Return `ert-info' infos from RESULT as a string.
+RESULT must be an `ert-test-result-with-condition'."
+  (check-type result ert-test-result-with-condition)
+  (mapconcat
+   (lambda (info)
+	 ;; for each info read out prefix and message
+	 (destructuring-bind (prefix . message) info
+	   ;; rearrange the string so that each line except the first is
+	   ;; prefixed with spaces matching prefix in length. The first
+	   ;; line is prefixed with the prefix.
+	   (concat prefix
+			   (mapconcat #'identity
+						  (split-string message "\n" t)
+						  (concat "\n" (make-string (length prefix) ?\s))))))
+   (ert-test-result-with-condition-infos result) "\n"))
+
+
+(defun ert-junit-testcase (stats test-name test-index)
   "Insert a testcase XML element at point in the current buffer.
-A variable `stats' must be bound to the test run state.
-The name of the testcase is KEY and VALUE its index into `stats'."
-  (insert " "
+STATS is the test run state.  The name of the testcase is
+TEST-NAME and TEST-INDEX its index into STATS."
+  (concat " "
 		  (format "<testcase name=\"%s\" classname=\"ert\" time=\"%f\">"
-				  key ;name
+				  test-name ;name
 				  ;; time
-				  (float-time (time-subtract (aref (ert--stats-test-end-times stats) value)
-											 (aref (ert--stats-test-start-times stats) value)))))
+				  (float-time (time-subtract (aref (ert--stats-test-end-times stats) test-index)
+											 (aref (ert--stats-test-start-times stats) test-index))))
   ;; success, failure or error
-  (let ((test-status (aref (ert--stats-test-results stats) value)))
-	(unless (ert-test-result-expected-p (aref (ert--stats-tests stats) value) test-status)
-	  (etypecase test-status
-		(ert-test-passed "")
-		(ert-test-failed (insert "<failure message=\"test\" type=\"type\">")
-						 (ert--insert-infos test-status)
-										;(ert--print-backtrace (ert-test-result-with-condition-backtrace test-status))
-						 (insert "</failure>"))
-		(ert-test-quit (insert " <failure>quit</failure>")
-					   ))))
-  (insert "</testcase>" "\n"))
-  
+   (let ((test-status (aref (ert--stats-test-results stats) test-index))
+		 (text ""))
+	 (unless (ert-test-result-expected-p (aref (ert--stats-tests stats) test-index) test-status)
+	   (etypecase test-status
+		 (ert-test-passed "")
+		 (ert-test-failed
+		  (setq text (concat "<failure message=\"test\" type=\"type\">"
+							 (ert-junit--infos-string test-status)
+							 ;;(ert--print-backtrace (ert-test-result-with-condition-backtrace test-status))
+							 "</failure>")))
+		 (ert-test-quit (setq text " <failure>quit</failure>"))))
+	 text)
+   "</testcase>" "\n"))
+
 (defvar ert--results-stats)
 
 (defun ert-junit-report ()
@@ -83,7 +103,8 @@ The name of the testcase is KEY and VALUE its index into `stats'."
 					(- (ert-stats-total stats) (ert-stats-completed stats)) ;skipped
 					)
 			"\n")
-	(maphash #'ert-junit-testcase
+	(maphash (lambda (key value)
+			   (insert (ert-junit-testcase stats key value)))
 			 (ert--stats-test-map stats))
 	(insert "</testsuite>" "\n")))
 
