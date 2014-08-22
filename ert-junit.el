@@ -32,6 +32,30 @@
 (require 'ert)
 (eval-when-compile (require 'cl))
 
+(defun ert-junit-testcase (key value)
+  "Insert a testcase XML element at point in the current buffer.
+A variable `stats' must be bound to the test run state.
+The name of the testcase is KEY and VALUE its index into `stats'."
+  (insert " "
+		  (format "<testcase name=\"%s\" classname=\"ert\" time=\"%f\">"
+				  key ;name
+				  ;; time
+				  (float-time (time-subtract (aref (ert--stats-test-end-times stats) value)
+											 (aref (ert--stats-test-start-times stats) value)))))
+  ;; success, failure or error
+  (let ((test-status (aref (ert--stats-test-results stats) value)))
+	(unless (ert-test-result-expected-p (aref (ert--stats-tests stats) value) test-status)
+	  (etypecase test-status
+		(ert-test-passed "")
+		(ert-test-failed (insert "<failure message=\"test\" type=\"type\">")
+						 (ert--insert-infos test-status)
+										;(ert--print-backtrace (ert-test-result-with-condition-backtrace test-status))
+						 (insert "</failure>"))
+		(ert-test-quit (insert " <failure>quit</failure>")
+					   ))))
+  (insert "</testcase>" "\n"))
+  
+
 (defun ert-generate-junit-report (stats buf)
   "Generate a JUnit XML report for STATS at point in BUF."
   (with-current-buffer buf
@@ -48,25 +72,7 @@
 					(- (ert-stats-total stats) (ert-stats-completed stats)) ;skipped
 					)
 			"\n")
-	(maphash (lambda (key value)
-			   (insert " "
-					   (format "<testcase name=\"%s\" classname=\"ert\" time=\"%f\">"
-							   key ;name
-							   ;; time
-							   (float-time (time-subtract (aref (ert--stats-test-end-times stats) value)
-														  (aref (ert--stats-test-start-times stats) value)))))
-			   ;; success, failure or error
-			   (let ((test-status (aref (ert--stats-test-results stats) value)))
-				 (unless (ert-test-result-expected-p (aref (ert--stats-tests stats) value) test-status)
-				   (etypecase test-status
-					 (ert-test-passed "")
-					 (ert-test-failed (insert "<failure message=\"test\" type=\"type\">")
-									  (ert--insert-infos test-status)
-										;(ert--print-backtrace (ert-test-result-with-condition-backtrace test-status))
-									  (insert "</failure>"))
-					 (ert-test-quit (insert " <failure>quit</failure>")
-									))))
-			   (insert "</testcase>" "\n"))
+	(maphash #'ert-junit-testcase
 			 (ert--stats-test-map stats))
 	(insert "</testsuite>" "\n")))
 
