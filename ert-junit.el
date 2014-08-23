@@ -35,20 +35,11 @@
 (defun ert-junit--infos-string (result)
   "Return `ert-info' infos from RESULT as a string.
 RESULT must be an `ert-test-result-with-condition'."
-  (check-type result ert-test-result-with-condition)
-  (mapconcat
-   (lambda (info)
-	 ;; for each info read out prefix and message
-	 (destructuring-bind (prefix . message) info
-	   ;; rearrange the string so that each line except the first is
-	   ;; prefixed with spaces matching prefix in length. The first
-	   ;; line is prefixed with the prefix.
-	   (concat prefix
-			   (mapconcat #'identity
-						  (split-string message "\n" t)
-						  (concat "\n" (make-string (length prefix) ?\s))))))
-   (ert-test-result-with-condition-infos result) "\n"))
-
+  (with-temp-buffer
+	(ert--insert-infos result)
+	(forward-line -1)
+	(delete-extract-rectangle (point-min) (+ (line-beginning-position) 4))
+	(buffer-string)))
 
 (defun ert-junit-testcase (stats test-name test-index)
   "Insert a testcase XML element at point in the current buffer.
