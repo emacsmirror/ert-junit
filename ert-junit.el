@@ -99,8 +99,8 @@ TEST-NAME and TEST-INDEX its index into STATS."
 			 (ert--stats-test-map stats))
 	(insert "</testsuite>" "\n")))
 
-(defun ert-run-tests-junit-batch (result-file &optional selector)
-  "Run `ert-tests-batch-selector' and generate JUnit report.
+(defun ert-junit-run-tests-batch (result-file &optional selector)
+  "Run `ert-run-tests-batch' and generate JUnit report.
 The report is written to RESULT-FILE and pertains to tests
 selected by SELECTOR."
   (let ((stats (ert-run-tests-batch selector))
@@ -110,8 +110,10 @@ selected by SELECTOR."
 	  (ert-junit-generate-report stats buf)
 	  (save-buffer))))
 
-(defun ert-run-xtests-batch-and-exit (&optional selector)
-  "Like `ert-run-tests-batch', but exits Emacs when done.
+(defun ert-junit-run-tests-batch-and-exit (&optional selector)
+  "Like `ert-run-tests-batch-and-exit', but write a JUnit report to file.
+
+The report file name is read from the command line.
 
 The exit status will be 0 if all test results were as expected, 1
 on unexpected results, or 2 if the tool detected an error outside
@@ -122,7 +124,7 @@ the tests)."
 			(result-file (and command-line-args-left
 							  (= (length command-line-args-left) 1)
 							  (car command-line-args-left))))
-		(ert-run-tests-junit-batch result-file selector)
+		(ert-junit-run-tests-batch result-file selector)
         (kill-emacs (if (zerop (ert-stats-completed-unexpected stats)) 0 1)))
     (unwind-protect
         (progn
