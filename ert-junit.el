@@ -22,13 +22,13 @@
 ;; GNU General Public License for more details.
 
 ;; You should have received a copy of the GNU General Public License
-;; along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 
-;; Creates JUnit compatible XML files from ert results.  Batch
-;; functions for command line use are included.  Useful for CI testing
-;; on http://shippable.com.
+;; Creates JUnit (http://junit.org) compatible XML files from ert
+;; results.  Batch functions for command line use are included.
+;; Useful for CI testing on http://shippable.com.
 
 ;;; Code:
 
