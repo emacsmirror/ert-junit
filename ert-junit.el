@@ -7,6 +7,7 @@
 ;; Created; Jul 24 2014
 ;; Keywords: lisp, tools
 ;; Version: 0.1
+;; Package-Requires: ((ert "0"))
 
 ;; This file is not part of GNU Emacs.
 
