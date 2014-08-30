@@ -1,4 +1,4 @@
-;;; ert-junit.el --- ERT extensions used by bitbake tests
+;;; ert-junit.el --- JUnit XML reports from ert results
 
 ;; Copyright (C) 2014  Ola Nilsson
 
@@ -25,7 +25,9 @@
 
 ;;; Commentary:
 
-;;
+;; Creates JUnit compatible XML files from ert results.  Batch
+;; functions for command line use are included.  Useful for CI testing
+;; on http://shippable.com.
 
 ;;; Code:
 

@@ -1,12 +1,11 @@
-# ert-junit
+# ert-junit - JUnit XML reports from ert results
 
-ert-junit provides a way to store [ert][ERTMANUAL] test results in a machine
-readable format.
+ert-junit publishes ert test results as JUnit XML files.
 
 [ert][ERTMANUAL] already provides a way to run tests in batch mode
 from the command line.  The results are printed on stdout.  ert-junit
-does the same, but instead of printing to stdout the test results are
-stored in a [JUnit][JUNIT] compatible [XML-file][JUNITXSD].
+does the same, but also writes test result to a [JUnit][JUNIT]
+compatible [XML-file][JUNITXSD].
 
 ert-junit also provides various functions for use from general elisp code.
 
