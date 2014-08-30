@@ -8,6 +8,7 @@
 ;; Keywords: tools test unittest ert
 ;; Version: 0.1
 ;; Package-Requires: ((ert "0"))
+;; URL: http://bitbucket.org/olanilsson/ert-junit
 
 ;; This file is not part of GNU Emacs.
 
