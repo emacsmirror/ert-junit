@@ -17,6 +17,10 @@ http://shippable.com.
 [JUNITXSD]: http://windyroad.com.au/dl/Open%20Source/JUnit.xsd "JUnit xsd"
 [CI]: http://en.wikipedia.org/wiki/Continuous_integration "Continous Integration on Wikipedia"
 
+## See also
+
+[testcover-cobertura](http://bitbucket.org/olanilsson/testcover-cobertura)
+is a good complement when running CI on http://shippable.com.
 
 ## git repo
 
