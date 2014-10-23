@@ -1,3 +1,5 @@
+[![MELPA Stable](http://stable.melpa.org/packages/ert-junit-badge.svg)](http://stable.melpa.org/#/ert-junit) [![MELPA](http://melpa.org/packages/ert-junit-badge.svg)](http://melpa.org/#/ert-junit) 
+
 # ert-junit - JUnit XML reports from ert results
 
 ert-junit publishes ert test results as JUnit XML files.
@@ -59,4 +61,3 @@ to execute the tests defined in tests.el.
 Run ert tests selected by `selector` and write the XML report to
 `result-file`.  If `result-file` already exists it is overwritten.
 Corresponds to - and indeed calls - `ert-run-tests-batch`.
-
