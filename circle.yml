@@ -15,7 +15,7 @@ test:
             parallel: true
 deployment:
     bitbucket:
-        branch: /.*/
+        branch: master
         commands:
             - env
             - evm install --use emacs-25.1-travis
