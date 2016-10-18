@@ -1,0 +1,23 @@
+machine:
+    timezone:
+        Europe/Stockholm
+    ruby:
+    pre:
+        - curl -fsSkL --retry 9 --retry-delay 9 https://raw.github.com/rejeep/evm/master/go | bash
+    environment:
+        PATH: $PATH:$HOME/.evm/bin
+        EMACS: evm-emacs
+    post:
+        - evm config path /tmp
+test:
+    override:
+        - ci/evm-matrix.sh $CIRCLE_NODE_INDEX $CIRCLE_NODE_TOTAL:
+            parallel: true
+deployment:
+    bitbucket:
+        branch: /.*/
+        commands:
+            - env
+            - evm install --use emacs-25.1-travis
+            - ci/publish.sh -c -u "Ola Nilsson" -e "ola.nilsson@gmail.com" ert-junit.el
+
