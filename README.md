@@ -1,6 +1,9 @@
-[![MELPA Stable](http://stable.melpa.org/packages/ert-junit-badge.svg)](http://stable.melpa.org/#/ert-junit) [![MELPA](http://melpa.org/packages/ert-junit-badge.svg)](http://melpa.org/#/ert-junit) 
+[![CircleCI](https://circleci.com/bb/olanilsson/ert-junit/tree/master.svg?style=shield&circle-token=53181abb7e92a4c72ba7d0f5516ab87fae38e9e1)](https://circleci.com/bb/olanilsson/ert-junit/tree/master)
+[![MELPA Stable](http://stable.melpa.org/packages/ert-junit-badge.svg)](http://stable.melpa.org/#/ert-junit)
+[![MELPA](http://melpa.org/packages/ert-junit-badge.svg)](http://melpa.org/#/ert-junit) 
 
 # ert-junit - JUnit XML reports from ert results
+
 
 ert-junit publishes ert test results as JUnit XML files.
 
