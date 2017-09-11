@@ -54,8 +54,8 @@ jobs:
           name: Deploy
           command: |
             if [ ${CIRCLE_BRANCH} = master ]; then
-                ci/publish.sh -P -v -c -u "Ola Nilsson" -e "ola.nilsson@gmail.com" ert-junit.el
-            else
                 ci/publish.sh -v -c -u "Ola Nilsson" -e "ola.nilsson@gmail.com" ert-junit.el
+            else
+                ci/publish.sh -P -v -c -u "Ola Nilsson" -e "ola.nilsson@gmail.com" ert-junit.el
             fi
 
