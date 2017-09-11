@@ -30,8 +30,6 @@ ever_major=$(firstword $(subst ., ,$(ever)))
 
 packages_23 = https://raw.githubusercontent.com/ohler/ert/fb3c278d/lisp/emacs-lisp/ert.el
 packages = $(packages_$(ever_major)) $(EXTRA_PACKAGES)
-#packages += https://raw.githubusercontent.com/philjackson/xmlgen/master/xmlgen.el
-#packages += https://bitbucket.org/olanilsson/ert-junit/raw/master/ert-junit.el
 
 CURL = curl -fsSkL --create-dirs --retry 9 --retry-delay 9
 
