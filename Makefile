@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2016 Ola Nilsson <ola.nilsson@gmail.com>
+# Copyright (C) 2015-2017 Ola Nilsson <ola.nilsson@gmail.com>
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 EFLAGS = -Q -L .
-EFLAGS += -L packages
+EFLAGS += -L $(PACKAGEDIR)
 
 ELS = ert-junit.el
 elcs = $(ELS:.el=.elc)
@@ -25,11 +25,13 @@ EMACS = emacs
 endif
 loadfiles = $(addprefix -l ,$(packagefiles) $(wildcard test/*.el)) $(EXTRA_LOADFILES)
 
-ever:=$(word 3,$(shell $(EMACS) --version | head -1))
-ever_major=$(firstword $(subst ., ,$(ever)))
+override ever:=$(word 3,$(shell $(EMACS) --version | head -1))
+override ever_major=$(firstword $(subst ., ,$(ever)))
 
 packages_23 = https://raw.githubusercontent.com/ohler/ert/fb3c278d/lisp/emacs-lisp/ert.el
 packages = $(packages_$(ever_major)) $(EXTRA_PACKAGES)
+
+PACKAGEDIR = packages/$(ever)
 
 CURL = curl -fsSkL --create-dirs --retry 9 --retry-delay 9
 
@@ -44,9 +46,9 @@ lisp: packages $(elcs)
 	$(EMACS) --batch $(EFLAGS) -f batch-byte-compile $^
 
 $(foreach p,$(packages),\
-	$(eval packages/$(notdir $(p)): ; $(CURL) $p -o $$@))
+	$(eval $(PACKAGEDIR)/$(notdir $(p)): ; $(CURL) $p -o $$@))
 
-packagefiles = $(addprefix packages/,$(notdir $(packages)))
+packagefiles = $(addprefix $(PACKAGEDIR)/,$(notdir $(packages)))
 
 packages: $(packagefiles)
 
@@ -67,7 +69,7 @@ lisp-clean:
 	-rm -rf *.elc test/*.elc
 
 clean: lisp-clean
-	-rm -rf  packages
+	-rm -rf  $(PACKAGEDIR)
 
 .PHONY: all test lisp clean packages test-no-results coverage
 
