@@ -6,7 +6,7 @@
 ;; Maintainer: Ola Nilsson <ola.nilsson@gmail.com>
 ;; Created; Jul 24 2014
 ;; Keywords: tools test unittest ert
-;; Version: 0.1.1
+;; Version: 0.1.2
 ;; Package-Requires: ((ert "0"))
 ;; URL: http://bitbucket.org/olanilsson/ert-junit
 
@@ -112,7 +112,8 @@ selected by SELECTOR."
 	(with-current-buffer buf
 	  (erase-buffer)
 	  (ert-junit-generate-report stats buf)
-	  (save-buffer))))
+	  (save-buffer))
+	stats))
 
 (defun ert-junit-run-tests-batch-and-exit (&optional selector)
   "Like `ert-run-tests-batch-and-exit', but write a JUnit report to file.
@@ -124,11 +125,10 @@ on unexpected results, or 2 if the tool detected an error outside
 of the tests (e.g. invalid SELECTOR or bug in the code that runs
 the tests)."
   (unwind-protect
-      (let ((stats (ert-run-tests-batch selector))
-			(result-file (and command-line-args-left
-							  (= (length command-line-args-left) 1)
-							  (car command-line-args-left))))
-		(ert-junit-run-tests-batch result-file selector)
+      (let* ((result-file (and command-line-args-left
+							   (= (length command-line-args-left) 1)
+							   (car command-line-args-left)))
+			 (stats (ert-junit-run-tests-batch result-file selector)))
         (kill-emacs (if (zerop (ert-stats-completed-unexpected stats)) 0 1)))
     (unwind-protect
         (progn
