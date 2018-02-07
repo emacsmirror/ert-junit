@@ -1,1 +1,2 @@
 *.elc
+/ert-junit-autoloads.el
