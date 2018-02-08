@@ -45,6 +45,17 @@ RESULT must be an `ert-test-result-with-condition'."
 	(delete-extract-rectangle (point-min) (+ (line-beginning-position) 4))
 	(buffer-string)))
 
+(defun ert-junit--condition-string (result)
+  "Return ert condition string for RESULT.
+RESULT must be an `ert-test-result-with-condition'."
+  (with-temp-buffer
+	(let ((print-escape-newlines t)
+          (print-level 5)
+          (print-length 10))
+      (ert--pp-with-indentation-and-newline
+       (ert-test-result-with-condition-condition result)))
+	(buffer-string)))
+
 (defun ert-junit-testcase (stats test-name test-index)
   "Insert a testcase XML element at point in the current buffer.
 STATS is the test run state.  The name of the testcase is
