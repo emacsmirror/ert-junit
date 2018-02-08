@@ -75,7 +75,16 @@ TEST-NAME and TEST-INDEX its index into STATS."
 		 (ert-test-failed
 		  (setq text (concat "<failure message=\"test\" type=\"type\">"
 							 (ert-junit--infos-string test-status)
-							 ;;(ert--print-backtrace (ert-test-result-with-condition-backtrace test-status))
+							 (ert-junit--condition-string test-status)
+							 ;; Printing the backtrace requires
+							 ;; escapes (as the content may contain
+							 ;; xml-like constructs like #<bytecode>
+							 ;; (with-temp-buffer
+							 ;;   (ert--print-backtrace
+							 ;; 	(ert-test-result-with-condition-backtrace test-status)
+							 ;; 	nil)
+							 ;;   (buffer-substring-no-properties (point-min)
+                             ;;                                 (point-max)))
 							 "</failure>")))
 		 (ert-test-quit (setq text " <failure>quit</failure>"))))
 	 text)
