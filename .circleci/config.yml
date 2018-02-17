@@ -1,5 +1,95 @@
+---
+teststeps: &teststeps
+  working_directory: ~/proj
+  steps:
+    - checkout
+    - run: $EMACS --version | tee .emacsversion
+    - restore_cache:
+        keys:
+          - v1-repo-packages-{{ checksum ".emacsversion" }}-{{ .Branch }}-
+          - v1-repo-packages-{{ checksum ".emacsversion" }}-
+    - run:
+        name: Install packages
+        command: |
+          set -v
+          make --debug=b packages
+          touch .packages.hash
+          if [ -d ~/proj/packages ]; then
+              ls -laR ~/proj/packages > .packages.hash
+          fi
+    - save_cache:
+          key: v1-repo-packages-{{ checksum ".emacsversion" }}-{{ .Branch }}-{{ checksum ".packages.hash" }}
+          paths:
+            - ~/proj/packages
+    - run:
+        name: Test
+        command: |
+          set -v
+          make check JUNIT_OUT=~/proj/test_results/test.xml
+    - store_test_results:
+        path: ~/proj/test_results
+    - store_artifacts:
+        path: ~/proj/test_results
+
 version: 2
 jobs:
+  emacs_26_0_91:
+    docker:
+      - image: olanilsson/emacs-ci:26.0.91
+    environment:
+      - EMACS: /opt/emacs/26.0.91/bin/emacs
+    <<: *teststeps
+  emacs_25_3:
+    docker:
+      - image: olanilsson/emacs-ci:25.3
+    environment:
+      - EMACS: /opt/emacs/25.3/bin/emacs
+    <<: *teststeps
+  emacs_25_2:
+    docker:
+      - image: olanilsson/emacs-ci:25.2
+    environment:
+      - EMACS: /opt/emacs/25.2/bin/emacs
+    <<: *teststeps
+  emacs_25_1:
+    docker:
+      - image: olanilsson/emacs-ci:25.1
+    environment:
+      - EMACS: /opt/emacs/25.1/bin/emacs
+    <<: *teststeps
+  emacs_24_5:
+    docker:
+      - image: olanilsson/emacs-ci:24.5
+    environment:
+      - EMACS: /opt/emacs/24.5/bin/emacs
+    <<: *teststeps
+  emacs_24_4:
+    docker:
+      - image: olanilsson/emacs-ci:24.4
+    environment:
+      - EMACS: /opt/emacs/24.4/bin/emacs
+    <<: *teststeps
+  emacs_24_3:
+    docker:
+      - image: olanilsson/emacs-ci:24.3
+    environment:
+      - EMACS: /opt/emacs/24.3/bin/emacs
+    <<: *teststeps
+  deploy:
+    docker:
+      - image: olanilsson/emacs-ci:25.3
+    environment:
+      - EMACS: /opt/emacs/25.3/bin/emacs
+    steps:
+      - checkout
+      - run:
+          name: Deploy
+          command: |
+            if [ ${CIRCLE_BRANCH} = master ]; then
+                ci/publish.sh -v -c -u "Ola Nilsson" -e "ola.nilsson@gmail.com" ert-junit.el
+            else
+                ci/publish.sh -P -v -c -u "Ola Nilsson" -e "ola.nilsson@gmail.com" ert-junit.el
+            fi
   build:
     docker:
       - image: olanilsson/emacs-ci:24.3-25.3
@@ -59,3 +149,40 @@ jobs:
                 ci/publish.sh -P -v -c -u "Ola Nilsson" -e "ola.nilsson@gmail.com" ert-junit.el
             fi
 
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - emacs_26_0_91
+      - emacs_25_3
+      - emacs_25_2
+      - emacs_25_1
+      - emacs_24_5
+      - emacs_24_4
+      - emacs_24_3
+      - deploy:
+          requires:
+            - emacs_26_0_91
+            - emacs_25_3
+            - emacs_25_2
+            - emacs_25_1
+            - emacs_24_5
+            - emacs_24_4
+            - emacs_24_3
+  weekly:
+    triggers:
+      - schedule:
+          # Run on Saturdays at 15:00 UTC
+          cron: "15 0 * * 6"
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - emacs_26_0_91
+      - emacs_25_3
+      - emacs_25_2
+      - emacs_25_1
+      - emacs_24_5
+      - emacs_24_4
+      - emacs_24_3
