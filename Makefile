@@ -57,9 +57,9 @@ packages: $(packagefiles)
 #	$(EMACS) --batch $(EFLAGS) $(loadfiles) -f ert-run-tests-batch-and-exit
 
 #run tests
-#test: lisp packages
-#	mkdir -p $(dir $(JUNIT_OUT))
-#	$(EMACS) --batch $(EFLAGS) $(loadfiles) -f ert-junit-run-tests-batch-and-exit $(JUNIT_OUT)
+check test: lisp packages
+	mkdir -p $(dir $(JUNIT_OUT))
+	$(EMACS) --batch $(EFLAGS) $(loadfiles) -f ert-junit-run-tests-batch-and-exit $(JUNIT_OUT)
 
 #coverage: lisp-clean packages
 #	mkdir -p $(dir $(COBERTURA_OUT))
