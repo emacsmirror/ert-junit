@@ -61,8 +61,13 @@ check test: lisp packages
 	mkdir -p $(dir $(JUNIT_OUT))
 	$(EMACS) --batch $(EFLAGS) $(loadfiles) -f ert-junit-run-tests-batch-and-exit $(JUNIT_OUT)
 
+ifneq (,$(filter cicheck%,$(MAKECMDGOALS)))
+.NOTPARALLEL:
+endif
+
 cichecks = $(addprefix cicheck_,24_3 24_4 24_5 25_1 25_2 25_3 26_0_91)
 cicheck: $(cichecks)
+	@echo $@ successful!
 
 $(cichecks): lisp-clean
 	circleci build --job=$(patsubst cicheck_%,emacs_%,$@) | tee $@.cilog
