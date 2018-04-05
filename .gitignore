@@ -2,3 +2,5 @@
 /ert-junit-autoloads.el
 *~
 /*.cilog
+/packages
+/shippable
