@@ -121,7 +121,6 @@ Normalization is done by `test-ert-junit-normalize-dom'."
 	(setf (aref (ert--stats-test-start-times stats) 0) '(0 0 0 0))
 	(setf (aref (ert--stats-test-end-times stats) 0) '(0 0 0 0))
 
-
 	(should-equal-normalized
 	 '(testcase ((name . "t1")
 				 (classname . "ert")
@@ -160,6 +159,25 @@ Normalization is done by `test-ert-junit-normalize-dom'."
 										 (time . "0.000000"))
 										(failure () "quit"))
 				   			 (test-ert-junit-xml2dom (ert-junit-testcase stats "t2" 1)))))
+
+(ert-deftest test-ert-junit-testcase-3 ()
+  "Check unexpected ok."
+  :tags '(ert-junit-testcase)
+  (let* ((unexpected-ok (make-ert-test :name 'unexpected-ok
+									   :expected-result-type :failed
+									   :body (lambda () nil)))
+		 (stats (ert--make-stats (list unexpected-ok) 't)))
+	(ert--stats-set-test-and-result stats 0 unexpected-ok (make-ert-test-passed))
+	(setf (aref (ert--stats-test-start-times stats) 0) '(0 0 0 0))
+	(setf (aref (ert--stats-test-end-times stats) 0) '(0 0 0 0))
+	(should-equal-normalized
+	 '(testcase ((name . "unexpected-ok")
+				 (classname . "ert")
+				 (time . "0.000000"))
+				(failure
+				 ((message . "passed unexpectedly")
+				  (type . "type"))))
+	 (test-ert-junit-xml2dom (ert-junit-testcase stats "unexpected-ok" 0)))))
 
 (provide 'test-ert-junit)
 ;;; test-ert-junit.el ends here

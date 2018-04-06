@@ -81,7 +81,8 @@ TEST-NAME and TEST-INDEX its index into STATS."
 		 (text ""))
 	 (unless (ert-test-result-expected-p (aref (ert--stats-tests stats) test-index) test-status)
 	   (etypecase test-status
-		 (ert-test-passed "")
+		 (ert-test-passed
+		  (setq text "\n  <failure message=\"passed unexpectedly\" type=\"type\"></failure>\n "))
 		 (ert-test-failed
 		  (setq text (concat "<failure message=\"test\" type=\"type\">"
 							 (ert-junit--infos-string test-status)
