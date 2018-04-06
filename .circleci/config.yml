@@ -25,7 +25,7 @@ teststeps: &teststeps
         name: Test
         command: |
           set -v
-          make check JUNIT_OUT=~/proj/test_results/test.xml
+          make check
     - store_test_results:
         path: ~/proj/test_results
     - store_artifacts:

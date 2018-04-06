@@ -35,7 +35,12 @@ PACKAGEDIR = packages/$(ever)
 
 CURL = curl -fsSkL --create-dirs --retry 9 --retry-delay 9
 
-JUNIT_OUT ?= shippable/testresults/tests.xml
+circleci_junit = $(if $(CIRCLECI),$(CIRCLE_WORKING_DIRECTORY)/test_results/test.xml)
+shippable_junit = $(if $(SHIPPABLE),shippable/testresults/tests.xml)
+pipelines_junit = $(if $(BITBUCKET_BUILD_NUMBER),test-results/junit.xml)
+JUNIT_OUT ?= $(or $(circleci_junit),$(shippable_junit),$(pipelines_junit),junit.xml)
+$(if $(word 2,$(JUNIT_OUT)),$(error JUNIT_OUT may only contain one filename, was "$(JUNIT_OUT)"))
+
 COBERTURA_OUT ?= shippable/codecoverage/coverage.xml
 
 all: lisp
