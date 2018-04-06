@@ -78,7 +78,11 @@ nodes that are pure whitespace strings."
 (defmacro should-equal-normalized (d1 d2)
   "Check that normalized doms D1 and D2 are `equal'.
 Normalization is done by `test-ert-junit-normalize-dom'."
-  `(should (equal (test-ert-junit-normalize-dom ,d1) (test-ert-junit-normalize-dom ,d2))))
+  `(let ((n1 (test-ert-junit-normalize-dom ,d1))
+		 (n2 (test-ert-junit-normalize-dom ,d2)))
+	 (ert-info ((pp-to-string n1) :prefix "D1: ")
+	   (ert-info ((pp-to-string n2) :prefix "D2: ")
+		 (should (equal n1 n2))))))
 
 (ert-deftest test-ert-junit--infos-string-1 ()
   :tags '(ert-junit--infos-string)
