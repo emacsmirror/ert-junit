@@ -187,5 +187,22 @@ returned by `float-time'.  Default value for START-TIME is `'(0 0
 				  (type . "type"))))
 	 (test-ert-junit-xml2dom (ert-junit-testcase stats "unexpected-ok" 0)))))
 
+(ert-deftest test-ert-junit-testcase-4 ()
+  "Check expected fail."
+  :tags '(ert-junit-testcase)
+  (let* ((expected-fail (make-ert-test :name 'expected-fail
+									   :expected-result-type :failed
+									   :body (lambda () nil)))
+		 (stats (ert--make-stats (list expected-fail) 't)))
+	(test-ert-junit--set-test-status stats 0 expected-fail (make-ert-test-passed))
+	(should-equal-normalized
+	 '(testcase ((name . "unexpected-ok")
+				 (classname . "ert")
+				 (time . "0.000000"))
+				(failure
+				 ((message . "passed unexpectedly")
+				  (type . "type"))))
+	 (test-ert-junit-xml2dom (ert-junit-testcase stats "unexpected-ok" 0)))))
+
 (provide 'test-ert-junit)
 ;;; test-ert-junit.el ends here
