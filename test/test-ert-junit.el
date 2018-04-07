@@ -110,6 +110,22 @@ Normalization is done by `test-ert-junit-normalize-dom'."
 	(should (string= "(= 1 2)\n" (ert-junit--condition-string result-with-condition))))
   )
 
+(defun test-ert-junit--set-test-status (stats pos test result
+											  &optional duration start-time)
+  "Change STATS by replacing the test at position POS with TEST and RESULT.
+Also set start and end time for POS according to DURATION and
+START-TIME.  START-TIME should be a time value as accepted by
+`float-time'.  DURATION should be a float number of seconds as
+returned by `float-time'.  Default value for START-TIME is `'(0 0
+0 0)' and 0 for DURATION."
+  (ert--stats-set-test-and-result stats pos test result)
+  (setq start-time (or start-time '(0 0 0 0)))
+  (setf (aref (ert--stats-test-start-times stats) pos) start-time)
+  (setf (aref (ert--stats-test-end-times stats) pos)
+		(if duration
+			(time-add start-time (seconds-to-time duration))
+			'(0 0 0 0))))
+
 (ert-deftest test-ert-junit-testcase-1 ()
   :tags '(ert-junit-testcase)
   (should-error (ert-junit-testcase nil nil nil))
@@ -117,9 +133,7 @@ Normalization is done by `test-ert-junit-normalize-dom'."
 		 (stats (ert--make-stats (list t1) 't)))
 	(should-error (ert-junit-testcase stats nil nil))
 
-	(ert--stats-set-test-and-result stats 0 t1 (make-ert-test-passed))
-	(setf (aref (ert--stats-test-start-times stats) 0) '(0 0 0 0))
-	(setf (aref (ert--stats-test-end-times stats) 0) '(0 0 0 0))
+	(test-ert-junit--set-test-status stats 0 t1 (make-ert-test-passed))
 
 	(should-equal-normalized
 	 '(testcase ((name . "t1")
@@ -132,18 +146,14 @@ Normalization is done by `test-ert-junit-normalize-dom'."
   (let* ((t1 (make-ert-test :name 't1 :body (lambda () nil)))
 		 (t2 (make-ert-test :name 't2 :body (lambda () nil)))
 		 (stats (ert--make-stats (list t1 t2) 't)))
-	(ert--stats-set-test-and-result stats 0 t1 (make-ert-test-failed :condition '(= 1 2)
-																	 :backtrace ""
-																	 :infos '()))
-	(setf (aref (ert--stats-test-start-times stats) 0) '(0 0 0 0))
-	(setf (aref (ert--stats-test-end-times stats) 0) '(0 0 0 0))
-
-	(ert--stats-set-test-and-result stats 1 t2 (make-ert-test-quit :condition '(error "Foo")
-																   :backtrace ""
-																   :infos '()))
-	(setf (aref (ert--stats-test-start-times stats) 1) '(0 0 0 0))
-	(setf (aref (ert--stats-test-end-times stats) 1) '(0 0 0 0))
-
+	(test-ert-junit--set-test-status stats 0 t1
+									 (make-ert-test-failed :condition '(= 1 2)
+														   :backtrace ""
+														   :infos '()))
+	(test-ert-junit--set-test-status stats 1 t2
+									 (make-ert-test-quit :condition '(error "Foo")
+														 :backtrace ""
+														 :infos '()))
 	(let* ((output (ert-junit-testcase stats "t1" 0))
 		   (testcase (test-ert-junit-xml2dom output))
 		   (expected `(testcase ((name . "t1")
@@ -167,9 +177,7 @@ Normalization is done by `test-ert-junit-normalize-dom'."
 									   :expected-result-type :failed
 									   :body (lambda () nil)))
 		 (stats (ert--make-stats (list unexpected-ok) 't)))
-	(ert--stats-set-test-and-result stats 0 unexpected-ok (make-ert-test-passed))
-	(setf (aref (ert--stats-test-start-times stats) 0) '(0 0 0 0))
-	(setf (aref (ert--stats-test-end-times stats) 0) '(0 0 0 0))
+	(test-ert-junit--set-test-status stats 0 unexpected-ok (make-ert-test-passed))
 	(should-equal-normalized
 	 '(testcase ((name . "unexpected-ok")
 				 (classname . "ert")
