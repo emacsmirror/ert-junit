@@ -33,6 +33,12 @@ teststeps: &teststeps
 
 version: 2
 jobs:
+  emacs_master:
+    docker:
+      - image: silex/emacs:master-dev
+    environment:
+      - EMACS: emacs
+    <<: *teststeps
   emacs_26_0_91:
     docker:
       - image: olanilsson/emacs-ci:26.0.91
@@ -153,6 +159,7 @@ workflows:
   version: 2
   build_and_test:
     jobs:
+      - emacs_master
       - emacs_26_0_91
       - emacs_25_3
       - emacs_25_2
@@ -162,6 +169,7 @@ workflows:
       - emacs_24_3
       - deploy:
           requires:
+            - emacs_master
             - emacs_26_0_91
             - emacs_25_3
             - emacs_25_2
@@ -179,6 +187,7 @@ workflows:
               only:
                 - master
     jobs:
+      - emacs_master
       - emacs_26_0_91
       - emacs_25_3
       - emacs_25_2
