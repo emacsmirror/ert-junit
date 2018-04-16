@@ -96,64 +96,6 @@ jobs:
             else
                 ci/publish.sh -P -v -c -u "Ola Nilsson" -e "ola.nilsson@gmail.com" ert-junit.el
             fi
-  build:
-    docker:
-      - image: olanilsson/emacs-ci:24.3-25.3
-    working_directory: ~/proj
-    environment:
-      - CIRCLE_TEST_REPORTS: ~/proj/test_results
-      - EMACS: /opt/emacs/25.3/bin/emacs
-      - EMACSVERSIONS: 25.3 25.2 25.1 24.5 24.4 24.3 24.2 24.1 23.4
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - v1-repo-packages-{{ .Branch }}-
-            - v1-repo-packages-
-      - run:
-          name: Install packages
-          command: |
-            for ever in $EMACSVERSIONS; do
-                if [ -f /opt/emacs/$ever/bin/emacs ] ; then
-                    echo make packages EMACS=/opt/emacs/$ever/bin/emacs
-                    make --debug=b packages EMACS=/opt/emacs/$ever/bin/emacs
-                else
-                    echo Emacs $ever not installed in /opt/emacs/$ever
-                fi
-            done
-            touch .packages.hash
-            if [ -d ~/proj/packages ]; then
-                ls -laR ~/proj/packages > .packages.hash
-            fi
-      - save_cache:
-          key: v1-repo-packages-{{ .Branch }}-{{ checksum ".packages.hash" }}
-          paths:
-            - ~/proj/packages
-      - run:
-          name: Build Matrix
-          command: |
-            mkdir -p ~/proj/test_results
-            for ever in $EMACSVERSIONS; do
-                if [ -f /opt/emacs/$ever/bin/emacs ] ; then
-                    echo make EMACS=/opt/emacs/$ever/bin/emacs
-                    make EMACS=/opt/emacs/$ever/bin/emacs
-                else
-                    echo Emacs $ever not installed in /opt/emacs/$ever
-                fi
-            done
-      # There are no test results at the moment
-      # - store_test_results:
-      #     path: ~/proj/test_results
-      # - store_artifacts:
-      #     path: ~/proj/test_results
-      - run:
-          name: Deploy
-          command: |
-            if [ ${CIRCLE_BRANCH} = master ]; then
-                ci/publish.sh -v -c -u "Ola Nilsson" -e "ola.nilsson@gmail.com" ert-junit.el
-            else
-                ci/publish.sh -P -v -c -u "Ola Nilsson" -e "ola.nilsson@gmail.com" ert-junit.el
-            fi
 
 workflows:
   version: 2
