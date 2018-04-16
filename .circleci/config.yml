@@ -39,11 +39,11 @@ jobs:
     environment:
       - EMACS: emacs
     <<: *teststeps
-  emacs_26.0.91:
+  emacs_26.1-rc1:
     docker:
-      - image: olanilsson/emacs-ci:26.0.91
+      - image: olanilsson/emacs-ci:26.1-rc1
     environment:
-      - EMACS: /opt/emacs/26.0.91/bin/emacs
+      - EMACS: /opt/emacs/26.1-rc1/bin/emacs
     <<: *teststeps
   emacs_25.3:
     docker:
@@ -102,7 +102,7 @@ workflows:
   build_and_test:
     jobs:
       - emacs_master
-      - emacs_26.0.91
+      - emacs_26.1-rc1
       - emacs_25.3
       - emacs_25.2
       - emacs_25.1
@@ -112,7 +112,7 @@ workflows:
       - deploy:
           requires:
             - emacs_master
-            - emacs_26.0.91
+            - emacs_26.1-rc1
             - emacs_25.3
             - emacs_25.2
             - emacs_25.1
@@ -130,7 +130,7 @@ workflows:
                 - master
     jobs:
       - emacs_master
-      - emacs_26.0.91
+      - emacs_26.1-rc1
       - emacs_25.3
       - emacs_25.2
       - emacs_25.1
