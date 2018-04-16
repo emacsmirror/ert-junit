@@ -70,7 +70,7 @@ ifneq (,$(filter cicheck%,$(MAKECMDGOALS)))
 .NOTPARALLEL:
 endif
 
-cichecks = $(addprefix cicheck_,24_3 24_4 24_5 25_1 25_2 25_3 26_0_91)
+cichecks = $(addprefix cicheck_,24.3 24.4 24.5 25.1 25.2 25.3 26.1-rc1 master)
 cicheck: $(cichecks)
 	@echo $@ successful!
 
