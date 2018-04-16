@@ -39,43 +39,43 @@ jobs:
     environment:
       - EMACS: emacs
     <<: *teststeps
-  emacs_26_0_91:
+  emacs_26.0.91:
     docker:
       - image: olanilsson/emacs-ci:26.0.91
     environment:
       - EMACS: /opt/emacs/26.0.91/bin/emacs
     <<: *teststeps
-  emacs_25_3:
+  emacs_25.3:
     docker:
       - image: olanilsson/emacs-ci:25.3
     environment:
       - EMACS: /opt/emacs/25.3/bin/emacs
     <<: *teststeps
-  emacs_25_2:
+  emacs_25.2:
     docker:
       - image: olanilsson/emacs-ci:25.2
     environment:
       - EMACS: /opt/emacs/25.2/bin/emacs
     <<: *teststeps
-  emacs_25_1:
+  emacs_25.1:
     docker:
       - image: olanilsson/emacs-ci:25.1
     environment:
       - EMACS: /opt/emacs/25.1/bin/emacs
     <<: *teststeps
-  emacs_24_5:
+  emacs_24.5:
     docker:
       - image: olanilsson/emacs-ci:24.5
     environment:
       - EMACS: /opt/emacs/24.5/bin/emacs
     <<: *teststeps
-  emacs_24_4:
+  emacs_24.4:
     docker:
       - image: olanilsson/emacs-ci:24.4
     environment:
       - EMACS: /opt/emacs/24.4/bin/emacs
     <<: *teststeps
-  emacs_24_3:
+  emacs_24.3:
     docker:
       - image: olanilsson/emacs-ci:24.3
     environment:
@@ -102,23 +102,23 @@ workflows:
   build_and_test:
     jobs:
       - emacs_master
-      - emacs_26_0_91
-      - emacs_25_3
-      - emacs_25_2
-      - emacs_25_1
-      - emacs_24_5
-      - emacs_24_4
-      - emacs_24_3
+      - emacs_26.0.91
+      - emacs_25.3
+      - emacs_25.2
+      - emacs_25.1
+      - emacs_24.5
+      - emacs_24.4
+      - emacs_24.3
       - deploy:
           requires:
             - emacs_master
-            - emacs_26_0_91
-            - emacs_25_3
-            - emacs_25_2
-            - emacs_25_1
-            - emacs_24_5
-            - emacs_24_4
-            - emacs_24_3
+            - emacs_26.0.91
+            - emacs_25.3
+            - emacs_25.2
+            - emacs_25.1
+            - emacs_24.5
+            - emacs_24.4
+            - emacs_24.3
   weekly:
     triggers:
       - schedule:
@@ -130,10 +130,10 @@ workflows:
                 - master
     jobs:
       - emacs_master
-      - emacs_26_0_91
-      - emacs_25_3
-      - emacs_25_2
-      - emacs_25_1
-      - emacs_24_5
-      - emacs_24_4
-      - emacs_24_3
+      - emacs_26.0.91
+      - emacs_25.3
+      - emacs_25.2
+      - emacs_25.1
+      - emacs_24.5
+      - emacs_24.4
+      - emacs_24.3
