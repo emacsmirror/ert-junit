@@ -34,6 +34,7 @@
 ;;; Code:
 
 (require 'ert)
+(require 'xml)
 (eval-when-compile (require 'cl))
 
 (defmacro ert-junit--stats (property stats test-index)
@@ -61,6 +62,17 @@ RESULT must be an `ert-test-result-with-condition'."
       (ert--pp-with-indentation-and-newline
        (ert-test-result-with-condition-condition result)))
 	(buffer-string)))
+
+(defun ert-junit--xml-escape-and-trim (string)
+  "Convert STRING into a trimmed string containing valid XML character data.
+Escape with `xml-escape-string'.  Use code equivalent to
+`string-trim' (not available in Emacs 24.3) to trim."
+  (let ((escaped (xml-escape-string string)))
+	(when (string-match "\\`[ \t\n\r]+" escaped)
+	  (setq escaped (replace-match "" t t escaped)))
+	(if (string-match "[ \t\n\r]+\\'" escaped)
+		(replace-match "" t t escaped)
+	  escaped)))
 
 (defun ert-junit--time-subtract-float (a b)
   "Return the elapsed seconds between two time values A and B.
