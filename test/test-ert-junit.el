@@ -161,7 +161,8 @@ returned by `float-time'.  Default value for START-TIME is `'(0 0
 								 (time . "0.000000"))
 								(failure
 								 ((message . "test")
-								  (type . "type"))))))
+                                  (type . "type"))
+                                 "(= 1 2)"))))
 	  (should-equal-normalized expected testcase))
 
 	(should-equal-normalized '(testcase ((name . "t2")
@@ -206,3 +207,7 @@ returned by `float-time'.  Default value for START-TIME is `'(0 0
 
 (provide 'test-ert-junit)
 ;;; test-ert-junit.el ends here
+
+;; Local Variables:
+;; indent-tabs-mode: nil
+;; End:

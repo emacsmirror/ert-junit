@@ -63,6 +63,22 @@ RESULT must be an `ert-test-result-with-condition'."
        (ert-test-result-with-condition-condition result)))
 	(buffer-string)))
 
+(defun ert-junit--failure-message (result)
+  "Return a failure message for RESULT.
+RESULT must be an `ert-test-result-with-condition'."
+  (concat (ert-junit--infos-string result)
+          (ert-junit--condition-string result)
+          ;; Printing the backtrace requires
+          ;; escapes (as the content may contain
+          ;; xml-like constructs like #<bytecode>
+          ;; (with-temp-buffer
+          ;;   (ert--print-backtrace
+          ;;    (ert-test-result-with-condition-backtrace test-status)
+          ;;    nil)
+          ;;   (buffer-substring-no-properties (point-min)
+          ;;                                 (point-max)))
+          ))
+
 (defun ert-junit--xml-escape-and-trim (string)
   "Convert STRING into a trimmed string containing valid XML character data.
 Escape with `xml-escape-string'.  Use code equivalent to
@@ -103,17 +119,8 @@ TEST-NAME and TEST-INDEX its index into STATS."
 		  (setq text "\n  <failure message=\"passed unexpectedly\" type=\"type\"></failure>\n "))
 		 (ert-test-failed
 		  (setq text (concat "<failure message=\"test\" type=\"type\">"
-							 (ert-junit--infos-string test-status)
-							 (ert-junit--condition-string test-status)
-							 ;; Printing the backtrace requires
-							 ;; escapes (as the content may contain
-							 ;; xml-like constructs like #<bytecode>
-							 ;; (with-temp-buffer
-							 ;;   (ert--print-backtrace
-							 ;; 	(ert-test-result-with-condition-backtrace test-status)
-							 ;; 	nil)
-							 ;;   (buffer-substring-no-properties (point-min)
-                             ;;                                 (point-max)))
+                             (ert-junit--xml-escape-and-trim
+                              (ert-junit--failure-message test-status))
 							 "</failure>")))
 		 (ert-test-quit (setq text " <failure>quit</failure>"))))
 	 text)
