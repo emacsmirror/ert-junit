@@ -36,6 +36,12 @@
 (require 'ert)
 (eval-when-compile (require 'cl))
 
+(defmacro ert-junit--stats (property stats test-index)
+  "Get PROPERTY from STATS test with index TEST-INDEX.
+Expand to `(aref (ert--stats-test-PROPERTY STATS) TEST-INDEX)'."
+  (let ((stat-fn (intern (format "ert--stats-test-%s" (symbol-name property)))))
+    `(aref (,stat-fn ,stats) ,test-index)))
+
 (defun ert-junit--infos-string (result)
   "Return `ert-info' infos from RESULT as a string.
 RESULT must be an `ert-test-result-with-condition'."
@@ -74,10 +80,10 @@ TEST-NAME and TEST-INDEX its index into STATS."
 				  test-name ;name
 				  ;; time
 				  (ert-junit--time-subtract-float
-				   (aref (ert--stats-test-end-times stats) test-index)
-				   (aref (ert--stats-test-start-times stats) test-index)))
-  ;; success, failure or error
-   (let ((test-status (aref (ert--stats-test-results stats) test-index))
+                   (ert-junit--stats end-times stats test-index)
+                   (ert-junit--stats start-times stats test-index)))
+   ;; success, failure or error
+   (let ((test-status (ert-junit--stats results stats test-index))
 		 (text ""))
 	 (unless (ert-test-result-expected-p (aref (ert--stats-tests stats) test-index) test-status)
 	   (etypecase test-status
@@ -171,6 +177,7 @@ the tests)."
 ;; Local Variables:
 ;; byte-compile-warnings: (not cl-functions)
 ;; tab-width: 4
+;; indent-tabs-mode: nil
 ;; End:
 (provide 'ert-junit)
 ;;; ert-junit.el ends here
