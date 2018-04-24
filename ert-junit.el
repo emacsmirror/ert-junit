@@ -66,7 +66,7 @@ See ‘current-time-string’ for the various forms of a time value."
 							   (or b current-time)))))
 
 (defun ert-junit-testcase (stats test-name test-index)
-  "Insert a testcase XML element at point in the current buffer.
+  "Return a testcase XML element as a string.
 STATS is the test run state.  The name of the testcase is
 TEST-NAME and TEST-INDEX its index into STATS."
   (concat " "
