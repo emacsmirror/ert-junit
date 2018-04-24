@@ -127,6 +127,7 @@ returned by `float-time'.  Default value for START-TIME is `'(0 0
 			'(0 0 0 0))))
 
 (ert-deftest test-ert-junit-testcase-1 ()
+  "Check a single passing test."
   :tags '(ert-junit-testcase)
   (should-error (ert-junit-testcase nil nil nil))
   (let* ((t1 (make-ert-test :name 't1 :body (lambda () nil)))
@@ -142,6 +143,7 @@ returned by `float-time'.  Default value for START-TIME is `'(0 0
 	 (test-ert-junit-xml2dom (ert-junit-testcase stats "t1" 0)))))
 
 (ert-deftest test-ert-junit-testcase-2 ()
+  "Test failed and quit."
   :tags '(ert-junit-testcase)
   (let* ((t1 (make-ert-test :name 't1 :body (lambda () nil)))
 		 (t2 (make-ert-test :name 't2 :body (lambda () nil)))
@@ -204,6 +206,48 @@ returned by `float-time'.  Default value for START-TIME is `'(0 0
 				 ((message . "passed unexpectedly")
 				  (type . "type"))))
 	 (test-ert-junit-xml2dom (ert-junit-testcase stats "unexpected-ok" 0)))))
+
+(ert-deftest test-ert-junit-testcase-5 ()
+  "Check skipped tests."
+  :tags '(ert-junit-testcase)
+  ;; Can't test skip if skip is not supported
+  :expected-result (if (fboundp 'ert-skip) :passed :failed)
+  (let* ((skipped-unless (make-ert-test :body (lambda () (skip-unless (= 1 2)))))
+         (skipped-string (make-ert-test :body (lambda () (ert-skip "skip"))))
+         (skipped-data (make-ert-test :body (lambda () (ert-skip '(= 1 2)))))
+         (stats (ert--make-stats (list skipped-unless skipped-string skipped-data) 't)))
+    (test-ert-junit--set-test-status stats 0 skipped-unless (ert-run-test skipped-unless))
+    (test-ert-junit--set-test-status stats 1 skipped-string (ert-run-test skipped-string))
+    (test-ert-junit--set-test-status stats 2 skipped-data (ert-run-test skipped-data))
+    (should-equal-normalized
+     '(testcase ((name . "skipped-unless")
+                 (classname . "ert")
+                 (time . "0.000000"))
+                (skipped
+                 ((message . "(= 1 2)")
+                  (type . "type"))
+                 "(ert-test-skipped\n ((skip-unless\n   (= 1 2))\n  :form\n  (= 1 2)\n  :value nil))"
+                 ))
+     (test-ert-junit-xml2dom (ert-junit-testcase stats "skipped-unless" 0)))
+    (should-equal-normalized
+     '(testcase ((name . "skipped-string")
+                 (classname . "ert")
+                 (time . "0.000000"))
+                (skipped
+                 ((message . "skip")
+                  (type . "type"))
+                 "(ert-test-skipped \"skip\")"))
+     (test-ert-junit-xml2dom (ert-junit-testcase stats "skipped-string" 1)))
+    (should-equal-normalized
+     '(testcase ((name . "skipped-data")
+                 (classname . "ert")
+                 (time . "0.000000"))
+                (skipped
+                 ((message . "(= 1 2)")
+                  (type . "type"))
+                 "(ert-test-skipped\n (= 1 2))"))
+     (test-ert-junit-xml2dom (ert-junit-testcase stats "skipped-data" 2)))
+    ))
 
 (provide 'test-ert-junit)
 ;;; test-ert-junit.el ends here
