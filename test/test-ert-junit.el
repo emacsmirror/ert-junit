@@ -176,11 +176,10 @@ returned by `float-time'.  Default value for START-TIME is `'(0 0
 (ert-deftest test-ert-junit-testcase-3 ()
   "Check unexpected ok."
   :tags '(ert-junit-testcase)
-  (let* ((unexpected-ok (make-ert-test :name 'unexpected-ok
-									   :expected-result-type :failed
-									   :body (lambda () nil)))
+  (let* ((unexpected-ok (make-ert-test :expected-result-type :failed
+                                       :body (lambda () (should t))))
 		 (stats (ert--make-stats (list unexpected-ok) 't)))
-	(test-ert-junit--set-test-status stats 0 unexpected-ok (make-ert-test-passed))
+    (test-ert-junit--set-test-status stats 0 unexpected-ok (ert-run-test unexpected-ok))
 	(should-equal-normalized
 	 '(testcase ((name . "unexpected-ok")
 				 (classname . "ert")
