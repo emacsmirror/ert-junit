@@ -145,33 +145,30 @@ returned by `float-time'.  Default value for START-TIME is `'(0 0
 (ert-deftest test-ert-junit-testcase-2 ()
   "Test failed and quit."
   :tags '(ert-junit-testcase)
-  (let* ((t1 (make-ert-test :name 't1 :body (lambda () nil)))
-		 (t2 (make-ert-test :name 't2 :body (lambda () nil)))
-		 (stats (ert--make-stats (list t1 t2) 't)))
-	(test-ert-junit--set-test-status stats 0 t1
-									 (make-ert-test-failed :condition '(= 1 2)
-														   :backtrace ""
-														   :infos '()))
-	(test-ert-junit--set-test-status stats 1 t2
-									 (make-ert-test-quit :condition '(error "Foo")
-														 :backtrace ""
-														 :infos '()))
-	(let* ((output (ert-junit-testcase stats "t1" 0))
+  (let* ((failed-test (make-ert-test :body (lambda () (should (= 1 2)))))
+         (quit-test (make-ert-test :body (lambda () (signal 'quit nil))))
+         (stats (ert--make-stats (list failed-test quit-test) 't)))
+    (test-ert-junit--set-test-status stats 0 failed-test
+                                     (ert-run-test failed-test))
+    (test-ert-junit--set-test-status stats 1 quit-test
+                                     (ert-run-test quit-test))
+    (let* ((output (ert-junit-testcase stats "failed-test" 0))
 		   (testcase (test-ert-junit-xml2dom output))
-		   (expected `(testcase ((name . "t1")
+           (expected `(testcase ((name . "failed-test")
 								 (classname . "ert")
 								 (time . "0.000000"))
 								(failure
 								 ((message . "test")
                                   (type . "type"))
-                                 "(= 1 2)"))))
+                                 "(ert-test-failed\n ((should\n   (= 1 2))\n  :form\n  (= 1 2)\n  :value nil))"))))
 	  (should-equal-normalized expected testcase))
 
-	(should-equal-normalized '(testcase ((name . "t2")
-										 (classname . "ert")
-										 (time . "0.000000"))
-										(failure () "quit"))
-				   			 (test-ert-junit-xml2dom (ert-junit-testcase stats "t2" 1)))))
+    (should-equal-normalized
+     '(testcase ((name . "quit-test")
+                 (classname . "ert")
+                 (time . "0.000000"))
+                (failure () "quit"))
+     (test-ert-junit-xml2dom (ert-junit-testcase stats "quit-test" 1)))))
 
 (ert-deftest test-ert-junit-testcase-3 ()
   "Check unexpected ok."
