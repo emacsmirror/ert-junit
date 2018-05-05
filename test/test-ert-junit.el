@@ -193,25 +193,27 @@ returned by `float-time'.  Default value for START-TIME is `'(0 0
 (ert-deftest test-ert-junit-testcase-4 ()
   "Check expected fail."
   :tags '(ert-junit-testcase)
-  (let* ((expected-fail (make-ert-test :name 'expected-fail
-									   :expected-result-type :failed
-									   :body (lambda () nil)))
+  (let* ((expected-fail (make-ert-test :expected-result-type :failed
+                                       :body (lambda () (should nil))))
 		 (stats (ert--make-stats (list expected-fail) 't)))
-	(test-ert-junit--set-test-status stats 0 expected-fail (make-ert-test-passed))
+    (test-ert-junit--set-test-status stats 0 expected-fail (ert-run-test expected-fail))
 	(should-equal-normalized
-	 '(testcase ((name . "unexpected-ok")
+     '(testcase ((name . "expected-fail")
 				 (classname . "ert")
 				 (time . "0.000000"))
 				(failure
-				 ((message . "passed unexpectedly")
-				  (type . "type"))))
-	 (test-ert-junit-xml2dom (ert-junit-testcase stats "unexpected-ok" 0)))))
+                 ((message . "test")
+                  (type . "type"))
+                 "(ert-test-failed\n ((should nil)\n  :form nil :value nil))"
+                 ))
+     (test-ert-junit-xml2dom (ert-junit-testcase stats "expected-fail" 0)))))
 
 (ert-deftest test-ert-junit-testcase-5 ()
   "Check skipped tests."
   :tags '(ert-junit-testcase)
   ;; Can't test skip if skip is not supported
   :expected-result (if (fboundp 'ert-skip) :passed :failed)
+  (should (fboundp 'ert-skip))
   (let* ((skipped-unless (make-ert-test :body (lambda () (skip-unless (= 1 2)))))
          (skipped-string (make-ert-test :body (lambda () (ert-skip "skip"))))
          (skipped-data (make-ert-test :body (lambda () (ert-skip '(= 1 2)))))
@@ -254,4 +256,5 @@ returned by `float-time'.  Default value for START-TIME is `'(0 0
 
 ;; Local Variables:
 ;; indent-tabs-mode: nil
+;; tab-width: 4
 ;; End:
