@@ -129,13 +129,9 @@ returned by `float-time'.  Default value for START-TIME is `'(0 0
 (ert-deftest test-ert-junit-testcase-1 ()
   "Check a single passing test."
   :tags '(ert-junit-testcase)
-  (should-error (ert-junit-testcase nil nil nil))
   (let* ((passing-test (make-ert-test :body (lambda () (should t))))
          (stats (ert--make-stats (list passing-test) 't)))
-	(should-error (ert-junit-testcase stats nil nil))
-
     (test-ert-junit--set-test-status stats 0 passing-test (ert-run-test passing-test))
-
 	(should-equal-normalized
      '(testcase ((name . "passing-test")
 				 (classname . "ert")
@@ -246,6 +242,14 @@ returned by `float-time'.  Default value for START-TIME is `'(0 0
                  "(ert-test-skipped\n (= 1 2))"))
      (test-ert-junit-xml2dom (ert-junit-testcase stats "skipped-data" 2)))
     ))
+
+(ert-deftest test-ert-junit-testcase-6 ()
+  "Test that `ert-junit-testcase' errors on bad input."
+  :tags '(ert-junit-testcase)
+  (should-error (ert-junit-testcase nil nil nil))
+  (let* ((passing-test (make-ert-test :body (lambda () (should t))))
+         (stats (ert--make-stats (list passing-test) 't)))
+    (should-error (ert-junit-testcase stats nil nil))))
 
 (provide 'test-ert-junit)
 ;;; test-ert-junit.el ends here
