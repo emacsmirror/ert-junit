@@ -130,17 +130,17 @@ returned by `float-time'.  Default value for START-TIME is `'(0 0
   "Check a single passing test."
   :tags '(ert-junit-testcase)
   (should-error (ert-junit-testcase nil nil nil))
-  (let* ((t1 (make-ert-test :name 't1 :body (lambda () nil)))
-		 (stats (ert--make-stats (list t1) 't)))
+  (let* ((passing-test (make-ert-test :body (lambda () (should t))))
+         (stats (ert--make-stats (list passing-test) 't)))
 	(should-error (ert-junit-testcase stats nil nil))
 
-	(test-ert-junit--set-test-status stats 0 t1 (make-ert-test-passed))
+    (test-ert-junit--set-test-status stats 0 passing-test (ert-run-test passing-test))
 
 	(should-equal-normalized
-	 '(testcase ((name . "t1")
+     '(testcase ((name . "passing-test")
 				 (classname . "ert")
 				 (time . "0.000000")))
-	 (test-ert-junit-xml2dom (ert-junit-testcase stats "t1" 0)))))
+     (test-ert-junit-xml2dom (ert-junit-testcase stats "passing-test" 0)))))
 
 (ert-deftest test-ert-junit-testcase-2 ()
   "Test failed and quit."
