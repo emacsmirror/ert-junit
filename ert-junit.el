@@ -152,10 +152,18 @@ TEST-NAME and TEST-INDEX its index into STATS."
                               (ert-junit--failure-message test-status))
                              "</skipped>\n ")))
 		 (ert-test-failed
-		  (setq text (concat "<failure message=\"test\" type=\"type\">"
-                             (ert-junit--xml-escape-and-trim
-                              (ert-junit--failure-message test-status))
-							 "</failure>")))
+          (let ((condition (ert-test-failed-condition test-status)))
+            (if (and (consp condition)
+                     (symbolp (car condition))
+                     (not (eq (car condition) 'ert-test-failed))
+                     (get (car condition) 'error-conditions))
+                ;; This is an unexpected error
+                (setq text (concat "\n  <error message=\"" (nth 1 condition)
+                                   "\" type=\"type\">" "</error>\n "))
+              (setq text (concat "\n  <failure message=\"test\" type=\"type\">"
+                                 (ert-junit--xml-escape-and-trim
+                                  (ert-junit--failure-message test-status))
+                                 "</failure>\n ")))))
          (ert-test-quit (setq text " <failure>quit</failure>")))
 	 text)
    "</testcase>" "\n"))
@@ -185,7 +193,15 @@ TEST-NAME and TEST-INDEX its index into STATS."
                 (incf successful)
               (incf failures)))
            (ert-test-skipped (incf skipped))
-           (ert-test-failed (incf failures))
+           (ert-test-failed
+            (let ((condition (ert-test-failed-condition test-status)))
+              (if (and (consp condition)
+                       (symbolp (car condition))
+                       (not (eq (car condition) 'ert-test-failed))
+                       (get (car condition) 'error-conditions))
+                  ;; This is an unexpected error
+                  (incf errors)
+                (incf failures))))
            (ert-test-quit (incf failures)))))
      (ert--stats-test-map stats))
     (cl-assert (= total (+ successful failures errors skipped))

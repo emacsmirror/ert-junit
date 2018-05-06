@@ -82,6 +82,7 @@ nodes that are pure whitespace strings."
 (defmacro should-equal-normalized (d1 d2)
   "Check that normalized doms D1 and D2 are `equal'.
 Normalization is done by `test-ert-junit-normalize-dom'."
+  (declare (debug t))
   `(let ((n1 (test-ert-junit-normalize-dom ,d1))
 		 (n2 (test-ert-junit-normalize-dom ,d2)))
 	 (ert-info ((pp-to-string n1) :prefix "D1: ")
@@ -253,6 +254,55 @@ returned by `float-time'.  Default value for START-TIME is `'(0 0
          (stats (ert--make-stats (list passing-test) 't)))
     (should-error (ert-junit-testcase stats nil nil))))
 
+(ert-deftest test-ert-junit-testcase-7 ()
+  "Test that ert tests that signals unexpected errors are reported as errored."
+  :tags '(ert-junit-testcase)
+  (let* ((error-test (make-ert-test :body (lambda () (error "Unexpected"))))
+         (signal-test (make-ert-test
+                       :body (lambda () (user-error "Unexpected user-error"))))
+         (expected-error (make-ert-test
+                          :body (lambda () (should-error (error "Expected")))))
+         (wrong-error (make-ert-test
+                       :body (lambda () (should-error (error "Wrong type")
+                                                      :type 'user-error))))
+         (stats (test-ert-junit-run-tests
+                 (list error-test signal-test expected-error wrong-error))))
+    (should-equal-normalized
+     '(testcase ((name . "error-test")
+                 (classname . "ert")
+                 (time . "0.000000"))
+                (error ((type . "type")
+                        (message . "Unexpected"))))
+     (test-ert-junit-xml2dom (ert-junit-testcase stats "error-test" 0)))
+    (should-equal-normalized
+     '(testcase ((name . "signal-test")
+                 (classname . "ert")
+                 (time . "0.000000"))
+                (error ((type . "type")
+                        (message . "Unexpected user-error"))))
+     (test-ert-junit-xml2dom (ert-junit-testcase stats "signal-test" 1)))
+    (should-equal-normalized
+     '(testcase ((name . "expected-error")
+                 (classname . "ert")
+                 (time . "0.000000")))
+     (test-ert-junit-xml2dom (ert-junit-testcase stats "expected-error" 2)))
+    (should-equal-normalized
+     `(testcase ((name . "wrong-error")
+                 (classname . "ert")
+                 (time . "0.000000"))
+                (failure ((type . "type")
+                          (message . "test"))
+                         ,(concat
+                           "(ert-test-failed\n ((should-error\n"
+                           "   (error \"Wrong type\")\n"
+                           "   :type 'user-error)\n  :form\n"
+                           "  (error \"Wrong type\")\n"
+                           "  :condition\n  (error \"Wrong type\")\n  "
+                           ":fail-reason \"the error signaled did "
+                           "not have the expected type\"))")))
+     (test-ert-junit-xml2dom (ert-junit-testcase stats "wrong-error" 3)))
+    ))
+
 (defun mock-ert-junit-testcase (stats test-name test-index)
   "STATS TEST-NAME TEST-INDEX."
   (ignore stats test-name test-index)
@@ -323,8 +373,8 @@ Function `ert-junit-testcase' and function `system-name' are mocked."
                         (timestamp . "2018-05-09 00:25:00+0000")
                         (hostname . "mock")
                         (tests . "7")
-                        (failures . ,(if test-ert-junit-has-skipped "4" "5"))
-                        (errors . "0")
+                        (failures . "3")
+                        (errors . ,(if test-ert-junit-has-skipped "1" "2"))
                         (skipped . ,(if test-ert-junit-has-skipped "1" "0"))
                         (time . "120.000000")))
            (test-ert-junit-xml2dom (buffer-substring (line-end-position) (point-max))))
