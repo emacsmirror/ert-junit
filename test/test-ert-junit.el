@@ -26,6 +26,7 @@
 
 (require 'ert-junit)
 (require 'xml)
+(eval-and-compile (require 'cl-lib))
 
 ;; Introduced in Emacs 25.1
 (unless (require 'dom nil t)
@@ -126,12 +127,19 @@ returned by `float-time'.  Default value for START-TIME is `'(0 0
 			(time-add start-time (seconds-to-time duration))
 			'(0 0 0 0))))
 
+(defun test-ert-junit-run-tests (tests)
+  "Run TESTS and return a stats object for them."
+  (let ((stats (ert--make-stats tests 't))
+        (idx 0))
+    (dolist (test tests stats)
+      (test-ert-junit--set-test-status stats idx test (ert-run-test test))
+      (cl-incf idx))))
+
 (ert-deftest test-ert-junit-testcase-1 ()
   "Check a single passing test."
   :tags '(ert-junit-testcase)
   (let* ((passing-test (make-ert-test :body (lambda () (should t))))
-         (stats (ert--make-stats (list passing-test) 't)))
-    (test-ert-junit--set-test-status stats 0 passing-test (ert-run-test passing-test))
+         (stats (test-ert-junit-run-tests (list passing-test))))
 	(should-equal-normalized
      '(testcase ((name . "passing-test")
 				 (classname . "ert")
@@ -143,11 +151,7 @@ returned by `float-time'.  Default value for START-TIME is `'(0 0
   :tags '(ert-junit-testcase)
   (let* ((failed-test (make-ert-test :body (lambda () (should (= 1 2)))))
          (quit-test (make-ert-test :body (lambda () (signal 'quit nil))))
-         (stats (ert--make-stats (list failed-test quit-test) 't)))
-    (test-ert-junit--set-test-status stats 0 failed-test
-                                     (ert-run-test failed-test))
-    (test-ert-junit--set-test-status stats 1 quit-test
-                                     (ert-run-test quit-test))
+         (stats (test-ert-junit-run-tests (list failed-test quit-test))))
     (let* ((output (ert-junit-testcase stats "failed-test" 0))
 		   (testcase (test-ert-junit-xml2dom output))
            (expected `(testcase ((name . "failed-test")
@@ -171,8 +175,7 @@ returned by `float-time'.  Default value for START-TIME is `'(0 0
   :tags '(ert-junit-testcase)
   (let* ((unexpected-ok (make-ert-test :expected-result-type :failed
                                        :body (lambda () (should t))))
-		 (stats (ert--make-stats (list unexpected-ok) 't)))
-    (test-ert-junit--set-test-status stats 0 unexpected-ok (ert-run-test unexpected-ok))
+         (stats (test-ert-junit-run-tests (list unexpected-ok))))
 	(should-equal-normalized
 	 '(testcase ((name . "unexpected-ok")
 				 (classname . "ert")
@@ -187,8 +190,7 @@ returned by `float-time'.  Default value for START-TIME is `'(0 0
   :tags '(ert-junit-testcase)
   (let* ((expected-fail (make-ert-test :expected-result-type :failed
                                        :body (lambda () (should nil))))
-		 (stats (ert--make-stats (list expected-fail) 't)))
-    (test-ert-junit--set-test-status stats 0 expected-fail (ert-run-test expected-fail))
+         (stats (test-ert-junit-run-tests (list expected-fail))))
 	(should-equal-normalized
      '(testcase ((name . "expected-fail")
 				 (classname . "ert")
@@ -209,10 +211,7 @@ returned by `float-time'.  Default value for START-TIME is `'(0 0
   (let* ((skipped-unless (make-ert-test :body (lambda () (skip-unless (= 1 2)))))
          (skipped-string (make-ert-test :body (lambda () (ert-skip "skip"))))
          (skipped-data (make-ert-test :body (lambda () (ert-skip '(= 1 2)))))
-         (stats (ert--make-stats (list skipped-unless skipped-string skipped-data) 't)))
-    (test-ert-junit--set-test-status stats 0 skipped-unless (ert-run-test skipped-unless))
-    (test-ert-junit--set-test-status stats 1 skipped-string (ert-run-test skipped-string))
-    (test-ert-junit--set-test-status stats 2 skipped-data (ert-run-test skipped-data))
+         (stats (test-ert-junit-run-tests (list skipped-unless skipped-string skipped-data))))
     (should-equal-normalized
      '(testcase ((name . "skipped-unless")
                  (classname . "ert")
