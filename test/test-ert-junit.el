@@ -25,6 +25,7 @@
 ;;; Code:
 
 (require 'ert-junit)
+(require 'ert-x)
 (require 'xml)
 (eval-and-compile (require 'cl-lib))
 
@@ -42,6 +43,8 @@
 	"Return the NODE children."
 	(cddr node))
   )
+
+(defvar test-ert-junit-has-skipped (version<= "24.4" emacs-version))
 
 (defun test-ert-junit-xml2dom (xmlstring)
   "Parse XMLSTRING and return a dom object."
@@ -249,6 +252,83 @@ returned by `float-time'.  Default value for START-TIME is `'(0 0
   (let* ((passing-test (make-ert-test :body (lambda () (should t))))
          (stats (ert--make-stats (list passing-test) 't)))
     (should-error (ert-junit-testcase stats nil nil))))
+
+(defun mock-ert-junit-testcase (stats test-name test-index)
+  "STATS TEST-NAME TEST-INDEX."
+  (ignore stats test-name test-index)
+  "")
+
+(defmacro test-ert-junit--report-env (&rest body)
+  "Execute BODY with mocked functions and UTC0 timezone.
+Function `ert-junit-testcase' and function `system-name' are mocked."
+  (declare (debug t) (indent defun))
+  `(cl-letf (((symbol-function 'ert-junit-testcase) #'mock-ert-junit-testcase)
+             ((symbol-function 'system-name) (lambda () "mock")))
+     (let ((process-environment process-environment))
+       (setenv "TZ" "UTC0")
+       ,@body)))
+
+(ert-deftest test-ert-junit-generate-report-1-notests ()
+  "Generate a report with no testcases."
+  (cl-letf (((symbol-function 'ert-junit-testcase) #'mock-ert-junit-testcase)
+            ((symbol-function 'system-name) (lambda () "mock")))
+    (let ((stats (ert--make-stats '() 't))
+          (process-environment process-environment)
+          xml)
+      (setenv "TZ" "UTC0")
+      (setf (ert--stats-start-time stats) (date-to-time "2018-05-09 00:25+0000")
+            (ert--stats-end-time stats) (date-to-time "2018-05-09 00:27+0000"))
+      (ert-with-test-buffer
+          (:name (progn "xml"))
+          (ert-junit-generate-report stats (current-buffer))
+          (goto-char 1)
+          (should (string= (buffer-substring 1 (line-end-position))
+                           "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"))
+          (should-equal-normalized
+           '(testsuite ((name . "ERT")
+                        (timestamp . "2018-05-09 00:25:00+0000")
+                        (hostname . "mock")
+                        (tests . "0")
+                        (failures . "0")
+                        (errors . "0")
+                        (skipped . "0")
+                        (time . "120.000000")))
+           (test-ert-junit-xml2dom (buffer-substring (line-end-position) (point-max))))
+          ))))
+
+(ert-deftest test-ert-junit-generate-report-2 ()
+  "Generate a report with a mix of testcase results."
+  (test-ert-junit--report-env
+    (let* ((passed-expected (make-ert-test :body (lambda () (should t))))
+           (passed-unexpected (make-ert-test :body (lambda () (should t))
+                                             :expected-result-type :failed))
+           (failed-expected (make-ert-test :body (lambda () (should nil))
+                                           :expected-result-type :failed))
+           (failed-unexpected (make-ert-test :body (lambda () (should nil))))
+           (skipped (make-ert-test :body (lambda () (ert-skip "skip"))))
+           (erroring (make-ert-test :body (lambda () (error "Error"))))
+           (ok-error (make-ert-test :body (lambda () (should-error (error "Ok") :type 'error))))
+           (stats (test-ert-junit-run-tests (list passed-expected passed-unexpected
+                                                  failed-expected failed-unexpected
+                                                  skipped erroring ok-error)))
+           xml)
+      (setf (ert--stats-start-time stats) (date-to-time "2018-05-09 00:25+0000")
+            (ert--stats-end-time stats) (date-to-time "2018-05-09 00:27+0000"))
+      (ert-with-test-buffer
+          (:name (progn "xml"))
+          (ert-junit-generate-report stats (current-buffer))
+          (goto-char 1)
+          (should-equal-normalized
+           `(testsuite ((name . "ERT")
+                        (timestamp . "2018-05-09 00:25:00+0000")
+                        (hostname . "mock")
+                        (tests . "7")
+                        (failures . ,(if test-ert-junit-has-skipped "3" "4"))
+                        (errors . "0")
+                        (skipped . ,(if test-ert-junit-has-skipped "1" "0"))
+                        (time . "120.000000")))
+           (test-ert-junit-xml2dom (buffer-substring (line-end-position) (point-max))))
+          ))))
 
 (provide 'test-ert-junit)
 ;;; test-ert-junit.el ends here
