@@ -323,7 +323,7 @@ Function `ert-junit-testcase' and function `system-name' are mocked."
                         (timestamp . "2018-05-09 00:25:00+0000")
                         (hostname . "mock")
                         (tests . "7")
-                        (failures . ,(if test-ert-junit-has-skipped "3" "4"))
+                        (failures . ,(if test-ert-junit-has-skipped "4" "5"))
                         (errors . "0")
                         (skipped . ,(if test-ert-junit-has-skipped "1" "0"))
                         (time . "120.000000")))

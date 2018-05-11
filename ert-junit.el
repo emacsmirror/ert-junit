@@ -175,9 +175,22 @@ TEST-NAME and TEST-INDEX its index into STATS."
 (defun ert-junit-generate-report (stats buf)
   "Generate a JUnit XML report for STATS at point in BUF."
   (let ((total (ert-stats-total stats))
-        (failures (ert-stats-completed-unexpected stats))
-        (errors 0)
-        (skipped (ert-stats-skipped stats)))
+        (successful 0) (failures 0) (errors 0) (skipped 0))
+    (maphash
+     (lambda (testname index)
+       (let ((test-status (ert-junit--stats results stats index)))
+         (etypecase test-status
+           (ert-test-passed
+            (if (ert-test-result-expected-p (aref (ert--stats-tests stats) index) test-status)
+                (incf successful)
+              (incf failures)))
+           (ert-test-skipped (incf skipped))
+           (ert-test-failed (incf failures))
+           (ert-test-quit (incf failures)))))
+     (ert--stats-test-map stats))
+    (cl-assert (= total (+ successful failures errors skipped))
+               nil "%d != (+ %d %d %d %d)"
+               total successful failures errors skipped)
   (with-current-buffer buf
 	(insert "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
     (insert (format "<testsuite name=\"ERT\" timestamp=\"%s\" hostname=\"%s\" tests=\"%d\" failures=\"%d\" errors=\"%d\" skipped=\"%d\" time=\"%f\">"
