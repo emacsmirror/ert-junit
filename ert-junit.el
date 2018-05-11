@@ -174,25 +174,25 @@ TEST-NAME and TEST-INDEX its index into STATS."
 
 (defun ert-junit-generate-report (stats buf)
   "Generate a JUnit XML report for STATS at point in BUF."
+  (let ((total (ert-stats-total stats))
+        (failures (ert-stats-completed-unexpected stats))
+        (errors 0)
+        (skipped (ert-stats-skipped stats)))
   (with-current-buffer buf
 	(insert "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
-	(insert (format "<testsuite name=\"ERT\" timestamp=\"%s\" hostname=\"%s\" tests=\"%d\" failures=\"%d\" errors=\"%d\" time=\"%f\" skipped=\"%d\" >"
+    (insert (format "<testsuite name=\"ERT\" timestamp=\"%s\" hostname=\"%s\" tests=\"%d\" failures=\"%d\" errors=\"%d\" skipped=\"%d\" time=\"%f\">"
                     ;; timestamp
                     (ert--format-time-iso8601 (ert--stats-start-time stats))
 					(system-name) ;hostname
-					(ert-stats-total stats) ;tests
-					(ert-stats-completed-unexpected stats) ;failures
-					0; errors
+                    total failures errors skipped
 					(ert-junit--time-subtract-float ; time
 					 (ert--stats-end-time stats)
-					 (ert--stats-start-time stats))
-                    (ert-stats-skipped stats) ; skipped
-					)
+                     (ert--stats-start-time stats)))
 			"\n")
 	(maphash (lambda (key value)
 			   (insert (ert-junit-testcase stats key value)))
 			 (ert--stats-test-map stats))
-	(insert "</testsuite>" "\n")))
+    (insert "</testsuite>" "\n"))))
 
 (defun ert-junit-run-tests-batch (result-file &optional selector)
   "Run `ert-run-tests-batch' and generate JUnit report.
