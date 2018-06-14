@@ -3,24 +3,6 @@ teststeps: &teststeps
   working_directory: ~/proj
   steps:
     - checkout
-    - run: $EMACS --version | tee .emacsversion
-    - restore_cache:
-        keys:
-          - v1-repo-packages-{{ checksum ".emacsversion" }}-{{ .Branch }}-
-          - v1-repo-packages-{{ checksum ".emacsversion" }}-
-    - run:
-        name: Install packages
-        command: |
-          set -v
-          make --debug=b packages
-          touch .packages.hash
-          if [ -d ~/proj/packages ]; then
-              ls -laR ~/proj/packages > .packages.hash
-          fi
-    - save_cache:
-          key: v1-repo-packages-{{ checksum ".emacsversion" }}-{{ .Branch }}-{{ checksum ".packages.hash" }}
-          paths:
-            - ~/proj/packages
     - run:
         name: Test
         command: |
