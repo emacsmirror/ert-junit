@@ -18,57 +18,57 @@ version: 2
 jobs:
   emacs_master:
     docker:
-      - image: silex/emacs:master-dev
+      - image: olanilsson/emacs:master-alpine-ci
     environment:
       - EMACS: emacs
     <<: *teststeps
-  emacs_26.1-rc1:
+  emacs_26.1:
     docker:
-      - image: olanilsson/emacs-ci:26.1-rc1
+      - image: olanilsson/emacs:26.1-alpine-ci
     environment:
-      - EMACS: /opt/emacs/26.1-rc1/bin/emacs
+      - EMACS: emacs
     <<: *teststeps
   emacs_25.3:
     docker:
-      - image: olanilsson/emacs-ci:25.3
+      - image: olanilsson/emacs:25.3-alpine-ci
     environment:
-      - EMACS: /opt/emacs/25.3/bin/emacs
+      - EMACS: emacs
     <<: *teststeps
   emacs_25.2:
     docker:
-      - image: olanilsson/emacs-ci:25.2
+      - image: olanilsson/emacs:25.2-alpine-ci
     environment:
-      - EMACS: /opt/emacs/25.2/bin/emacs
+      - EMACS: emacs
     <<: *teststeps
   emacs_25.1:
     docker:
-      - image: olanilsson/emacs-ci:25.1
+      - image: olanilsson/emacs:25.1-ci
     environment:
-      - EMACS: /opt/emacs/25.1/bin/emacs
+      - EMACS: emacs
     <<: *teststeps
   emacs_24.5:
     docker:
-      - image: olanilsson/emacs-ci:24.5
+      - image: olanilsson/emacs:24.5-ci
     environment:
-      - EMACS: /opt/emacs/24.5/bin/emacs
+      - EMACS: emacs
     <<: *teststeps
   emacs_24.4:
     docker:
-      - image: olanilsson/emacs-ci:24.4
+      - image: olanilsson/emacs:24.4-ci
     environment:
-      - EMACS: /opt/emacs/24.4/bin/emacs
+      - EMACS: emacs
     <<: *teststeps
   emacs_24.3:
     docker:
-      - image: olanilsson/emacs-ci:24.3
+      - image: olanilsson/emacs:24.3-ci
     environment:
-      - EMACS: /opt/emacs/24.3/bin/emacs
+      - EMACS: emacs
     <<: *teststeps
   deploy:
     docker:
-      - image: olanilsson/emacs-ci:25.3
+      - image: olanilsson/emacs:26.1-alpine-ci
     environment:
-      - EMACS: /opt/emacs/25.3/bin/emacs
+      - EMACS: emacs
     steps:
       - checkout
       - run:
@@ -85,7 +85,7 @@ workflows:
   build_and_test:
     jobs:
       - emacs_master
-      - emacs_26.1-rc1
+      - emacs_26.1
       - emacs_25.3
       - emacs_25.2
       - emacs_25.1
@@ -95,7 +95,7 @@ workflows:
       - deploy:
           requires:
             - emacs_master
-            - emacs_26.1-rc1
+            - emacs_26.1
             - emacs_25.3
             - emacs_25.2
             - emacs_25.1
@@ -113,7 +113,7 @@ workflows:
                 - master
     jobs:
       - emacs_master
-      - emacs_26.1-rc1
+      - emacs_26.1
       - emacs_25.3
       - emacs_25.2
       - emacs_25.1
