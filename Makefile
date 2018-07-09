@@ -82,6 +82,11 @@ $(cichecks): lisp-clean
 #	mkdir -p $(dir $(COBERTURA_OUT))
 #	$(EMACS) --batch $(EFLAGS) $(loadfiles) -f ert-run-cobertura-tests-batch-and-exit $(COBERTURA_OUT) $(ELS)
 
+publish-test:
+	ci/publish.sh -P -v -c -u "Ola Nilsson" -e "ola.nilsson@gmail.com" ert-junit.el
+publish:
+	ci/publish.sh -v -c -u "Ola Nilsson" -e "ola.nilsson@gmail.com" ert-junit.el
+
 lisp-clean:
 	-rm -rf *.elc test/*.elc
 

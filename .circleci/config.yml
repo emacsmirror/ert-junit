@@ -92,9 +92,9 @@ jobs:
           name: Deploy
           command: |
             if [ ${CIRCLE_BRANCH} = master ]; then
-                ci/publish.sh -v -c -u "Ola Nilsson" -e "ola.nilsson@gmail.com" ert-junit.el
+                make publish
             else
-                ci/publish.sh -P -v -c -u "Ola Nilsson" -e "ola.nilsson@gmail.com" ert-junit.el
+                make publish-test
             fi
 
 workflows:
