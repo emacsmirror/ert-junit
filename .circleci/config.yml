@@ -7,6 +7,7 @@ teststeps: &teststeps
         name: Test
         command: |
           set -v
+          $EMACS --version
           make check
     - store_test_results:
         path: ~/proj/test_results
