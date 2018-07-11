@@ -36,6 +36,11 @@
     ))
 (require 'xml)
 
+;; For Emacs 23.4
+(unless (fboundp 'cl-incf) (defalias 'cl-incf 'incf))
+(unless (fboundp 'cl-loop) (defalias 'cl-loop 'loop))
+(unless (fboundp 'cl-sort) (defalias 'cl-sort 'sort*))
+
 ;; Introduced in Emacs 25.1
 (unless (require 'dom nil t)
   ;; these defuns are not as robust as those in dom.el, but should
