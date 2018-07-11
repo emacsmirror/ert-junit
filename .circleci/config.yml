@@ -64,6 +64,12 @@ jobs:
     environment:
       - EMACS: emacs
     <<: *teststeps
+  emacs_23.4:
+    docker:
+      - image: olanilsson/emacs:23.4-ci
+    environment:
+      - EMACS: emacs
+    <<: *teststeps
   deploy:
     docker:
       - image: olanilsson/emacs:26.1-alpine-ci
@@ -92,6 +98,7 @@ workflows:
       - emacs_24.5
       - emacs_24.4
       - emacs_24.3
+      - emacs_23.4
       - deploy:
           requires:
             - emacs_master
@@ -102,6 +109,7 @@ workflows:
             - emacs_24.5
             - emacs_24.4
             - emacs_24.3
+            - emacs_23.4
   weekly:
     triggers:
       - schedule:
@@ -120,3 +128,4 @@ workflows:
       - emacs_24.5
       - emacs_24.4
       - emacs_24.3
+      - emacs_23.4
