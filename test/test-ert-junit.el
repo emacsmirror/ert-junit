@@ -65,7 +65,7 @@
 			   ;; TODO: This test is broken
 			   (condition-case nil
 				   (libxml-parse-xml-region 1 (point-max))
-				 (void-function (xml-parse-region))))))
+                 (void-function (xml-parse-region 1 (point-max)))))))
 	;; Emacs 24.5 and earlier wraps the result in another list for
 	;; some reason
 	(when (listp (car dom))
