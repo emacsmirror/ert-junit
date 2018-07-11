@@ -25,9 +25,16 @@
 ;;; Code:
 
 (require 'ert-junit)
-(require 'ert-x)
-(require 'xml)
 (eval-and-compile (require 'cl-lib))
+(unless (require 'ert-x nil t)
+  (defmacro* ert-with-test-buffer ((&key ((:name name-form)))
+                                     &body body)
+    "Simple replacement for `ert-with-test-buffer' for Emacs 23.4."
+    (declare (debug ((":name" form) body))
+             (indent 1))
+    `(with-temp-buffer ,@body)
+    ))
+(require 'xml)
 
 ;; Introduced in Emacs 25.1
 (unless (require 'dom nil t)
