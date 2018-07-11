@@ -25,7 +25,7 @@
 ;;; Code:
 
 (require 'ert-junit)
-(eval-and-compile (require 'cl-lib))
+(eval-and-compile (require 'cl))
 (unless (require 'ert-x nil t)
   (defmacro* ert-with-test-buffer ((&key ((:name name-form)))
                                      &body body)
