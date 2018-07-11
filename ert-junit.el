@@ -204,9 +204,9 @@ TEST-NAME and TEST-INDEX its index into STATS."
                 (incf failures))))
            (ert-test-quit (incf failures)))))
      (ert--stats-test-map stats))
-    (cl-assert (= total (+ successful failures errors skipped))
-               nil "%d != (+ %d %d %d %d)"
-               total successful failures errors skipped)
+    (assert (= total (+ successful failures errors skipped))
+            nil "%d != (+ %d %d %d %d)"
+            total successful failures errors skipped)
   (with-current-buffer buf
 	(insert "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
     (insert (format "<testsuite name=\"ERT\" timestamp=\"%s\" hostname=\"%s\" tests=\"%d\" failures=\"%d\" errors=\"%d\" skipped=\"%d\" time=\"%f\">"
