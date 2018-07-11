@@ -320,12 +320,9 @@ Function `ert-junit-testcase' and function `system-name' are mocked."
 
 (ert-deftest test-ert-junit-generate-report-1-notests ()
   "Generate a report with no testcases."
-  (cl-letf (((symbol-function 'ert-junit-testcase) #'mock-ert-junit-testcase)
-            ((symbol-function 'system-name) (lambda () "mock")))
+  (test-ert-junit--report-env
     (let ((stats (ert--make-stats '() 't))
-          (process-environment process-environment)
           xml)
-      (setenv "TZ" "UTC0")
       (setf (ert--stats-start-time stats) (date-to-time "2018-05-09 00:25+0000")
             (ert--stats-end-time stats) (date-to-time "2018-05-09 00:27+0000"))
       (ert-with-test-buffer
