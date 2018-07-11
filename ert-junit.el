@@ -37,9 +37,9 @@
 (require 'xml)
 (eval-when-compile (require 'cl))
 
-(unless (fboundp 'ert-skipped-p)
+(unless (fboundp 'ert-test-skipped-p)
   (defun ert-test-skipped-p (cl-x)
-    "Dummy `ert-test-skipped' for Emacs 24.3."
+    "Dummy `ert-test-skipped-p' for Emacs 24.3."
     nil))
 
 (unless (fboundp 'ert-stats-skipped)
