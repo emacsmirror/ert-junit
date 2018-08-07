@@ -160,7 +160,11 @@ Normalization is done by `test-ert-junit-normalize-dom'."
   :tags '(ert-junit--condition-string)
   (ert-info ("Calling ert-junit--condition-string with bad argument")
     (should-error (ert-junit--condition-string nil)
-                  :type 'wrong-type-argument)))
+                  ;; CL in Emacs 23.4 does not have a specific error
+                  ;; type for wrong struct type arguments.
+                  :type (if (version< emacs-version "24")
+                            'error
+                          'wrong-type-argument))))
 
 (ert-deftest test-ert-junit--condition-string-2-expected-string ()
   :tags '(ert-junit--condition-string)
