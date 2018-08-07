@@ -375,10 +375,12 @@ returned by `float-time'.  Default value for START-TIME is `'(0 0
   "Execute BODY with mocked functions and UTC0 timezone.
 Function `ert-junit-testcase' and function `system-name' are mocked."
   (declare (debug t) (indent defun))
-  ;; cl-letf was introduces in Emacs 24, while flet was declared obsolete
+  ;; cl-letf was introduced in Emacs 24, while flet was declared obsolete
   (if (version< emacs-version "24")
       `(flet ((ert-junit-testcase (stats test-name test-index)
-                                  (mock-ert-junit-testcase stats test-name test-index))
+                                  (mock-ert-junit-testcase stats
+                                                           test-name
+                                                           test-index))
               (system-name () (progn "mock")))
          (let ((process-environment process-environment))
            (setenv "TZ" "UTC0")
