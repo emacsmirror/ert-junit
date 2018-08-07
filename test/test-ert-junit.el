@@ -187,13 +187,14 @@ returned by `float-time'.  Default value for START-TIME is `'(0 0
 			(time-add start-time (seconds-to-time duration))
 			'(0 0 0 0))))
 
-(defun test-ert-junit-run-tests (tests)
-  "Run TESTS and return a stats object for them."
-  (let ((stats (ert--make-stats tests 't))
-        (idx 0))
-    (dolist (test tests stats)
-      (test-ert-junit--set-test-status stats idx test (ert-run-test test))
-      (cl-incf idx))))
+(defun test-ert-junit-run-tests (test-list)
+  "Run each test in TEST-LIST and return a stats object for them."
+  (cl-loop with stats = (ert--make-stats test-list 't)
+           for test in test-list
+           for idx from 0
+           do (test-ert-junit--set-test-status stats idx test
+                                               (ert-run-test test))
+           finally return stats))
 
 (ert-deftest test-ert-junit-testcase-1 ()
   "Check a single passing test."
