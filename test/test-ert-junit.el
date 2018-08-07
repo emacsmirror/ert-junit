@@ -162,29 +162,22 @@ returned by `float-time'.  Default value for START-TIME is `'(0 0
 				 (time . "0.000000")))
      (test-ert-junit-xml2dom (ert-junit-testcase stats "passing-test" 0)))))
 
-(ert-deftest test-ert-junit-testcase-2 ()
-  "Test failed and quit."
+(ert-deftest test-ert-junit-testcase-2-failed ()
+  "Test failed."
   :tags '(ert-junit-testcase)
   (let* ((failed-test (make-ert-test :body (lambda () (should (= 1 2)))))
-         (quit-test (make-ert-test :body (lambda () (signal 'quit nil))))
-         (stats (test-ert-junit-run-tests (list failed-test quit-test))))
-    (let* ((output (ert-junit-testcase stats "failed-test" 0))
-		   (testcase (test-ert-junit-xml2dom output))
-           (expected `(testcase ((name . "failed-test")
-								 (classname . "ert")
-								 (time . "0.000000"))
-								(failure
-								 ((message . "test")
-                                  (type . "type"))
-                                 "(ert-test-failed\n ((should\n   (= 1 2))\n  :form\n  (= 1 2)\n  :value nil))"))))
-	  (should-equal-normalized expected testcase))
+         (stats (test-ert-junit-run-tests (list failed-test)))
+         (output (ert-junit-testcase stats "failed-test" 0))
+         (testcase (test-ert-junit-xml2dom output))
+         (expected `(testcase ((name . "failed-test")
+                               (classname . "ert")
+                               (time . "0.000000"))
+                              (failure
+                               ((message . "test")
+                                (type . "type"))
+                               "(ert-test-failed\n ((should\n   (= 1 2))\n  :form\n  (= 1 2)\n  :value nil))"))))
+    (should-equal-normalized expected testcase)))
 
-    (should-equal-normalized
-     '(testcase ((name . "quit-test")
-                 (classname . "ert")
-                 (time . "0.000000"))
-                (failure () "quit"))
-     (test-ert-junit-xml2dom (ert-junit-testcase stats "quit-test" 1)))))
 
 (ert-deftest test-ert-junit-testcase-3 ()
   "Check unexpected ok."
@@ -314,6 +307,19 @@ returned by `float-time'.  Default value for START-TIME is `'(0 0
                            "not have the expected type\"))")))
      (test-ert-junit-xml2dom (ert-junit-testcase stats "wrong-error" 3)))
     ))
+
+(ert-deftest test-ert-junit-testcase-8-quit ()
+  "Test quit."
+  :tags '(ert-junit-testcase)
+  (let* ((quit-test (make-ert-test :body (lambda () (signal 'quit nil))))
+         (stats (test-ert-junit-run-tests (list quit-test)))
+         (quit-xml (ert-junit-testcase stats "quit-test" 0)))
+    (should-equal-normalized
+     '(testcase ((name . "quit-test")
+                 (classname . "ert")
+                 (time . "0.000000"))
+                (failure () "quit"))
+     (test-ert-junit-xml2dom quit-xml))))
 
 (defun mock-ert-junit-testcase (stats test-name test-index)
   "STATS TEST-NAME TEST-INDEX."
