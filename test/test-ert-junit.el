@@ -41,6 +41,45 @@
 (unless (fboundp 'cl-loop) (defalias 'cl-loop 'loop))
 (unless (fboundp 'cl-sort) (defalias 'cl-sort 'sort*))
 
+(when (version< emacs-version "24.1")
+  ;; ert for Emacs 23.4 does not handle ert-test-quit objects in
+  ;; ert--stats-set-test-and-result.  The function below is a copy of
+  ;; ert--stats-set-test-and-result from the last ert version outside
+  ;; GNU Emacs with the ert-test-quit cases added.
+  (defun ert--stats-set-test-and-result (stats pos test result)
+    "Change STATS by replacing the test at position POS with TEST and RESULT.
+
+Also changes the counters in STATS to match."
+    (let* ((tests (ert--stats-tests stats))
+           (results (ert--stats-test-results stats))
+           (old-test (aref tests pos))
+           (map (ert--stats-test-map stats)))
+      (flet ((update (d)
+               (if (ert-test-result-expected-p (aref tests pos)
+                                               (aref results pos))
+                   (etypecase (aref results pos)
+                     (ert-test-passed (incf (ert--stats-passed-expected stats) d))
+                     (ert-test-failed (incf (ert--stats-failed-expected stats) d))
+                     (null)
+                     (ert-test-aborted-with-non-local-exit)
+                     (ert-test-quit))
+                 (etypecase (aref results pos)
+                   (ert-test-passed (incf (ert--stats-passed-unexpected stats) d))
+                   (ert-test-failed (incf (ert--stats-failed-unexpected stats) d))
+                   (null)
+                   (ert-test-aborted-with-non-local-exit)
+                   (ert-test-quit)))))
+        ;; Adjust counters to remove the result that is currently in stats.
+        (update -1)
+        ;; Put new test and result into stats.
+        (setf (aref tests pos) test
+              (aref results pos) result)
+        (remhash (ert--stats-test-key old-test) map)
+        (setf (gethash (ert--stats-test-key test) map) pos)
+        ;; Adjust counters to match new result.
+        (update +1)
+        nil))))
+
 ;; Introduced in Emacs 25.1
 (unless (require 'dom nil t)
   ;; these defuns are not as robust as those in dom.el, but should
