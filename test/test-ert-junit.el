@@ -156,15 +156,20 @@ Normalization is done by `test-ert-junit-normalize-dom'."
 	(should (string= "Info: message\n" infostring)))
   )
 
-(ert-deftest test-ert-junit--condition-string-1 ()
+(ert-deftest test-ert-junit--condition-string-1-wrong-type ()
   :tags '(ert-junit--condition-string)
   (ert-info ("Calling ert-junit--condition-string with bad argument")
-    (should-error (ert-junit--condition-string nil) :type 'wrong-type-argument))
-  (let ((result-with-condition (make-ert-test-result-with-condition :condition '(= 1 2)
-																	:backtrace "backtrace"
-																	:infos '())))
-	(should (string= "(= 1 2)\n" (ert-junit--condition-string result-with-condition))))
-  )
+    (should-error (ert-junit--condition-string nil)
+                  :type 'wrong-type-argument)))
+
+(ert-deftest test-ert-junit--condition-string-2-expected-string ()
+  :tags '(ert-junit--condition-string)
+  (let ((result-with-condition (make-ert-test-result-with-condition
+                                :condition '(= 1 2)
+                                :backtrace "backtrace"
+                                :infos '())))
+    (should (string= "(= 1 2)\n"
+                     (ert-junit--condition-string result-with-condition)))))
 
 (defun test-ert-junit--set-test-status (stats pos test result
 											  &optional duration start-time)
