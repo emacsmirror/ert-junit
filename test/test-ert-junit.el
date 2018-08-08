@@ -40,6 +40,12 @@
 (unless (fboundp 'cl-incf) (defalias 'cl-incf 'incf))
 (unless (fboundp 'cl-loop) (defalias 'cl-loop 'loop))
 (unless (fboundp 'cl-sort) (defalias 'cl-sort 'sort*))
+(unless (fboundp 'user-error)
+  (defun user-error (format &rest args)
+    (signal 'user-error (list (apply #'format format args))))
+  (put 'user-error 'error-conditions '(error user-error))
+  (put 'user-error 'error-message "")
+  )
 
 (when (version< emacs-version "24.1")
   ;; ert for Emacs 23.4 does not handle ert-test-quit objects in
