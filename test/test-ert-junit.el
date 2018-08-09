@@ -358,8 +358,11 @@ returned by `float-time'.  Default value for START-TIME is `'(0 0
                            "   :type 'user-error)\n  :form\n"
                            "  (error \"Wrong type\")\n"
                            "  :condition\n  (error \"Wrong type\")\n  "
-                           ":fail-reason \"the error signaled did "
-                           "not have the expected type\"))")))
+                           ":fail-reason \"the error "
+                           ;; Spelling of signalled changed in Emacs 24
+                           (if (version< emacs-version "24")
+                               "signalled" "signaled")
+                           " did not have the expected type\"))")))
      (test-ert-junit-xml2dom (ert-junit-testcase stats "wrong-error" 3)))
     ))
 
