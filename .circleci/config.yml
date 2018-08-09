@@ -10,9 +10,9 @@ teststeps: &teststeps
           $EMACS --version
           make check
     - store_test_results:
-        path: ~/proj/test_results
+        path: ~/proj/test-results
     - store_artifacts:
-        path: ~/proj/test_results
+        path: ~/proj/test-results
 
 version: 2
 jobs:

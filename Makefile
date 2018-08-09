@@ -35,7 +35,7 @@ PACKAGEDIR = packages/$(ever)
 
 CURL = curl -fsSkL --create-dirs --retry 9 --retry-delay 9
 
-circleci_junit = $(if $(CIRCLECI),$(CIRCLE_WORKING_DIRECTORY)/test_results/test.xml)
+circleci_junit = $(if $(CIRCLECI),$(CIRCLE_WORKING_DIRECTORY)/test-results/ert/test.xml)
 shippable_junit = $(if $(SHIPPABLE),shippable/testresults/tests.xml)
 pipelines_junit = $(if $(BITBUCKET_BUILD_NUMBER),test-results/junit.xml)
 JUNIT_OUT ?= $(or $(circleci_junit),$(shippable_junit),$(pipelines_junit),junit.xml)
