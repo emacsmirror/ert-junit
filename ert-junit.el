@@ -1,12 +1,12 @@
 ;;; ert-junit.el --- JUnit XML reports from ert results
 
-;; Copyright (C) 2014  Ola Nilsson
+;; Copyright (C) 2014, 2016, 2018  Ola Nilsson
 
 ;; Author: Ola Nilsson <ola.nilsson@gmail.com>
 ;; Maintainer: Ola Nilsson <ola.nilsson@gmail.com>
 ;; Created; Jul 24 2014
 ;; Keywords: tools test unittest ert
-;; Version: 0.1.2
+;; Version: 0.3
 ;; Package-Requires: ((ert "0") (emacs "23.4"))
 ;; URL: http://bitbucket.org/olanilsson/ert-junit
 
@@ -29,7 +29,8 @@
 
 ;; Creates JUnit (http://junit.org) compatible XML files from ert
 ;; results.  Batch functions for command line use are included.
-;; Useful for CI testing on http://shippable.com.
+;; Useful for CI testing on services such as https://circleci.org and
+;; https://shippable.com
 
 ;;; Code:
 
