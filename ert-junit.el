@@ -4,7 +4,7 @@
 
 ;; Author: Ola Nilsson <ola.nilsson@gmail.com>
 ;; Maintainer: Ola Nilsson <ola.nilsson@gmail.com>
-;; Created; Jul 24 2014
+;; Created: Jul 24 2014
 ;; Keywords: tools test unittest ert
 ;; Version: 0.3.1
 ;; Package-Requires: ((ert "0") (emacs "23.4"))
@@ -125,6 +125,17 @@ See ‘current-time-string’ for the various forms of a time value."
 	(float-time (time-subtract (or a current-time)
 							   (or b current-time)))))
 
+(defun ert-junit--elapsed (stats &optional index)
+  "Return elapsed time for the test in STATS with INDEX.
+If INDEX is nil, return the entire time for STATS."
+  (if index
+      (ert-junit--time-subtract-float
+       (ert-junit--stats end-times stats index)
+       (ert-junit--stats start-times stats index))
+    (ert-junit--time-subtract-float
+     (ert--stats-end-time stats)
+     (ert--stats-start-time stats))))
+
 (defun ert-junit-testcase (stats test-name test-index)
   "Return a testcase XML element as a string.
 STATS is the test run state.  The name of the testcase is
@@ -132,10 +143,7 @@ TEST-NAME and TEST-INDEX its index into STATS."
   (concat " "
 		  (format "<testcase name=\"%s\" classname=\"ert\" time=\"%f\">"
 				  test-name ;name
-				  ;; time
-				  (ert-junit--time-subtract-float
-                   (ert-junit--stats end-times stats test-index)
-                   (ert-junit--stats start-times stats test-index)))
+                  (ert-junit--elapsed stats test-index)) ; time
    ;; success, failure or error
    (let ((test-status (ert-junit--stats results stats test-index))
 		 (text ""))
@@ -215,9 +223,7 @@ TEST-NAME and TEST-INDEX its index into STATS."
                     (ert--format-time-iso8601 (ert--stats-start-time stats))
 					(system-name) ;hostname
                     total failures errors skipped
-					(ert-junit--time-subtract-float ; time
-					 (ert--stats-end-time stats)
-                     (ert--stats-start-time stats)))
+                    (ert-junit--elapsed stats)) ; time
 			"\n")
 	(maphash (lambda (key value)
 			   (insert (ert-junit-testcase stats key value)))
