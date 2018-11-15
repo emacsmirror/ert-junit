@@ -116,25 +116,21 @@ Escape with `xml-escape-string'.  Use code equivalent to
 		(replace-match "" t t escaped)
 	  escaped)))
 
-(defun ert-junit--time-subtract-float (a b)
-  "Return the elapsed seconds between two time values A and B.
-A nil value for either argument stands for the current time.
-See ‘current-time-string’ for the various forms of a time value."
-  ;; time-subtract did not handle nil parameters until Emacs 25
-  (let ((current-time (current-time)))
-	(float-time (time-subtract (or a current-time)
-							   (or b current-time)))))
-
 (defun ert-junit--elapsed (stats &optional index)
   "Return elapsed time for the test in STATS with INDEX.
 If INDEX is nil, return the entire time for STATS."
-  (if index
-      (ert-junit--time-subtract-float
-       (ert-junit--stats end-times stats index)
-       (ert-junit--stats start-times stats index))
-    (ert-junit--time-subtract-float
-     (ert--stats-end-time stats)
-     (ert--stats-start-time stats))))
+  ;; time-subtract did not handle nil parameters until Emacs 25
+  (let ((current-time (current-time)))
+    (float-time
+     (time-subtract
+      (or (if index
+              (ert-junit--stats end-times stats index)
+            (ert--stats-end-time stats))
+          current-time)
+      (or (if index
+              (ert-junit--stats start-times stats index)
+            (ert--stats-start-time stats))
+          current-time)))))
 
 (defun ert-junit-testcase (stats test-name test-index)
   "Return a testcase XML element as a string.
