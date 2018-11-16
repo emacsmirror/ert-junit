@@ -35,6 +35,7 @@
     `(with-temp-buffer ,@body)
     ))
 (require 'xml)
+(require 'test-support)
 
 ;; For Emacs 23.4
 (unless (fboundp 'cl-incf) (defalias 'cl-incf 'incf))
@@ -418,16 +419,11 @@ Function `ert-junit-testcase' and function `system-name' are mocked."
           (should (string= (buffer-substring 1 (line-end-position))
                            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"))
           (should-equal-normalized
-           '(testsuites
-             nil
-             (testsuite ((name . "ERT")
-                         (timestamp . "2018-05-09 00:25:00+0000")
-                         (hostname . "mock")
-                         (tests . "0")
-                         (failures . "0")
-                         (errors . "0")
-                         (skipped . "0")
-                         (time . "120.000000"))))
+           (testsuites
+             (testsuite "ERT"
+               :stamp "2018-05-09 00:25:00+0000"
+               :host "mock"
+               :time "120.000000"))
            (test-ert-junit-xml2dom (buffer-substring (line-end-position) (point-max))))
           ))))
 
@@ -454,16 +450,15 @@ Function `ert-junit-testcase' and function `system-name' are mocked."
           (ert-junit-generate-report stats (current-buffer))
           (goto-char 1)
           (should-equal-normalized
-           `(testsuites
-             nil
-             (testsuite ((name . "ERT")
-                         (timestamp . "2018-05-09 00:25:00+0000")
-                         (hostname . "mock")
-                         (tests . "7")
-                         (failures . "3")
-                         (errors . ,(if test-ert-junit-has-skipped "1" "2"))
-                         (skipped . ,(if test-ert-junit-has-skipped "1" "0"))
-                         (time . "120.000000"))))
+           (testsuites
+             (testsuite "ERT"
+               :stamp "2018-05-09 00:25:00+0000"
+               :host "mock"
+               :tests 7
+               :fail 3
+               :err (if test-ert-junit-has-skipped 1 2)
+               :skip (if test-ert-junit-has-skipped 1 0)
+               :time  "120.000000"))
            (test-ert-junit-xml2dom (buffer-substring (line-end-position) (point-max))))
           ))))
 

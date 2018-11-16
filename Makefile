@@ -14,7 +14,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 EFLAGS = -Q -L .
-EFLAGS += -L $(PACKAGEDIR)
+EFLAGS += -L $(PACKAGEDIR) -L test -L test/support
 
 ELS = ert-junit.el
 elcs = $(ELS:.el=.elc)
