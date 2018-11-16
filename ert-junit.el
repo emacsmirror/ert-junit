@@ -214,6 +214,7 @@ TEST-NAME and TEST-INDEX its index into STATS."
             total successful failures errors skipped)
   (with-current-buffer buf
 	(insert "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
+    (insert "<testsuites>\n")
     (insert (format "<testsuite name=\"ERT\" timestamp=\"%s\" hostname=\"%s\" tests=\"%d\" failures=\"%d\" errors=\"%d\" skipped=\"%d\" time=\"%f\">"
                     ;; timestamp
                     (ert--format-time-iso8601 (ert--stats-start-time stats))
@@ -224,7 +225,8 @@ TEST-NAME and TEST-INDEX its index into STATS."
 	(maphash (lambda (key value)
 			   (insert (ert-junit-testcase stats key value)))
 			 (ert--stats-test-map stats))
-    (insert "</testsuite>" "\n"))))
+    (insert "</testsuite>" "\n")
+    (insert "</testsuites>" "\n"))))
 
 (defun ert-junit-run-tests-batch (result-file &optional selector)
   "Run `ert-run-tests-batch' and generate JUnit report.
