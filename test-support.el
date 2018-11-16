@@ -36,7 +36,7 @@
 
 (require 'cl-lib)
 
-(defvar test-buttercup-junit-timestamp-re
+(defvar junit-timestamp-re
   "[0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\} [012][0-9]:[0-5][0-9]:[0-5][0-9]\\+[012][0-9][0-5][0-9]"
   "Regex that matches JUnit timestamps; YYY-MM-DD hh:mm::ss+hhmm.")
 
@@ -67,7 +67,7 @@ CONTAINS should be the contained esxml lists."
 (cl-defun testsuite (name
                      &rest contains
                      &key (fail 0) (err 0) (skip 0) (tests (+ fail skip err))
-                     (stamp test-buttercup-junit-timestamp-re)
+                     (stamp junit-timestamp-re)
                      (host ".+") (time "[0-9]+\\.[0-9]+")
                      &allow-other-keys)
   "Return an esxml list for a testsuite tag.
@@ -78,7 +78,7 @@ SKIP is the number of skipped (pending) testcases, default 0.
 TESTS is the total number of testcases, defaults to FAIL + ERR + SKIP.
 STAMP should be a JUnit timestamp string or a time value as
       returned by `current-time'.  STAMP defaults to
-      `test-buttercup-junit-timestamp-re'.
+      `junit-timestamp-re'.
 HOST is a hostname, default `.+'.
 TIME is the elapsed time in seconds, default `[0-9]+\\.[0-9]+'."
   (declare (indent defun))
