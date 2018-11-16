@@ -87,55 +87,7 @@ Also changes the counters in STATS to match."
         (update +1)
         nil))))
 
-;; Introduced in Emacs 25.1
-(unless (require 'dom nil t)
-  ;; these defuns are not as robust as those in dom.el, but should
-  ;; work well enough.
-  (defun dom-tag (node)
-	"Return the NODE tag."
-	(car node))
-  (defun dom-attributes (node)
-	"Return the NODE attributes."
-	(cadr node))
-  (defun dom-children (node)
-	"Return the NODE children."
-	(cddr node))
-  )
-
 (defvar test-ert-junit-has-skipped (version<= "24.4" emacs-version))
-
-(defun test-ert-junit-xml2dom (xmlstring)
-  "Parse XMLSTRING and return a dom object."
-  (let ((dom (with-temp-buffer
-			   (insert xmlstring)
-			   ;; TODO: This test is broken
-			   (condition-case nil
-				   (libxml-parse-xml-region 1 (point-max))
-                 (void-function (xml-parse-region 1 (point-max)))))))
-	;; Emacs 24.5 and earlier wraps the result in another list for
-	;; some reason
-	(when (listp (car dom))
-	  (setq dom (car dom)))
-	dom))
-
-(defun test-ert-junit-normalize-dom (dom)
-  "Normalize a DOM.
-Sort the attribute list by attribute name and remove any child
-nodes that are pure whitespace strings."
-  (let ((node (list (dom-tag dom)
-					(cl-sort (copy-sequence (dom-attributes dom))
-							 'string-lessp :key 'car)))
-		(children
-		 (cl-loop for child in (dom-children dom)
-				  if (stringp child)
-				    if (not (string-match "^\\s-*$" child))
-				      collect child
-				    end
-				  else
-				  collect (test-ert-junit-normalize-dom child))))
-	(when children
-	  (setcdr (cdr node) children))
-	node))
 
 (defmacro should-equal-normalized (d1 d2)
   "Check that normalized doms D1 and D2 are `equal'.
