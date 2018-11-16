@@ -40,6 +40,9 @@
   "[0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\} [012][0-9]:[0-5][0-9]:[0-5][0-9]\\+[012][0-9][0-5][0-9]"
   "Regex that matches JUnit timestamps; YYY-MM-DD hh:mm::ss+hhmm.")
 
+(defvar junit-default-class "buttercup"
+ "Default value for the `class' attribute used by `testcase'.")
+
 (defun test-support--remove-keys (rest-list &rest keys)
   "Remove all key-value pairs from REST-LIST for all KEYS.
 Useful to remove &key arguments from a &rest argument in
@@ -98,12 +101,13 @@ TIME is the elapsed time in seconds, default `[0-9]+\\.[0-9]+'."
     ,@(test-support--remove-keys contains :fail :err :skip
                                          :tests :stamp :host :time)))
 
-(cl-defun testcase (name &rest contains &key (class "buttercup") (time "[0-9]+\\.[0-9]+")
-                         skip &allow-other-keys)
+(cl-defun testcase (name &rest contains &key (class junit-default-class)
+                         (time "[0-9]+\\.[0-9]+") skip &allow-other-keys)
   "Return an esxml list for a testcase tag.
 NAME is the spec description.
 CONTAINS is any inner data for the tag.
-CLASS is the value if the `class' attribute, default `buttercup'.
+CLASS is the value if the `class' attribute, default is the value
+      of `junit-default-class'.
 TIME is the elapsed time, default `[0-9]+\\.[0-9]+'.
 If SKIP is non-nil, include the `skip' attribute."
   (declare (indent defun))
