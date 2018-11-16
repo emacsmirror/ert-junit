@@ -40,13 +40,13 @@
   "[0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\} [012][0-9]:[0-5][0-9]:[0-5][0-9]\\+[012][0-9][0-5][0-9]"
   "Regex that matches JUnit timestamps; YYY-MM-DD hh:mm::ss+hhmm.")
 
-(defun test-buttercup-junit--remove-keys (rest-list &rest keys)
+(defun test-support--remove-keys (rest-list &rest keys)
   "Remove all key-value pairs from REST-LIST for all KEYS.
 Useful to remove &key arguments from a &rest argument in
 `cl-defun's and `cl-defmacro's.
 
 Example:
- (test-buttercup-junit--remove-keys '(1 :foo 2 3) :foo :bar)
+ (test-support--remove-keys '(1 :foo 2 3) :foo :bar)
  -> '(1 3)"
   (let (filtered elt)
     (while rest-list
@@ -95,7 +95,7 @@ TIME is the elapsed time in seconds, default `[0-9]+\\.[0-9]+'."
      (failures . ,(number-to-string fail))
      (errors . ,(number-to-string err)) (time . ,time)
      (skipped . ,(number-to-string skip)))
-    ,@(test-buttercup-junit--remove-keys contains :fail :err :skip
+    ,@(test-support--remove-keys contains :fail :err :skip
                                          :tests :stamp :host :time)))
 
 (cl-defun testcase (name &rest contains &key (class "buttercup") (time "[0-9]+\\.[0-9]+")
@@ -108,7 +108,7 @@ TIME is the elapsed time, default `[0-9]+\\.[0-9]+'.
 If SKIP is non-nil, include the `skip' attribute."
   (declare (indent defun))
   (let ((attrs `((name . ,name) (classname . ,class) (time . ,time))))
-    (setq contains (test-buttercup-junit--remove-keys contains :class :time))
+    (setq contains (test-support--remove-keys contains :class :time))
     (cond (skip `(testcase ,attrs (skipped nil)))
           (contains `(testcase ,attrs ,@contains))
           (t `(testcase ,attrs)))))
