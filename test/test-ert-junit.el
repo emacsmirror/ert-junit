@@ -93,8 +93,8 @@ Also changes the counters in STATS to match."
   "Check that normalized doms D1 and D2 are `equal'.
 Normalization is done by `test-ert-junit-normalize-dom'."
   (declare (debug t))
-  `(let ((n1 (test-ert-junit-normalize-dom ,d1))
-		 (n2 (test-ert-junit-normalize-dom ,d2)))
+  `(let ((n1 (test-support-normalize-dom ,d1))
+         (n2 (test-support-normalize-dom ,d2)))
 	 (ert-info ((pp-to-string n1) :prefix "D1: ")
 	   (ert-info ((pp-to-string n2) :prefix "D2: ")
 		 (should (equal n1 n2))))))
@@ -168,7 +168,7 @@ returned by `float-time'.  Default value for START-TIME is `'(0 0
      '(testcase ((name . "passing-test")
 				 (classname . "ert")
 				 (time . "0.000000")))
-     (test-ert-junit-xml2dom (ert-junit-testcase stats "passing-test" 0)))))
+     (test-support-xml2dom (ert-junit-testcase stats "passing-test" 0)))))
 
 (ert-deftest test-ert-junit-testcase-2-failed ()
   "Test failed."
@@ -176,7 +176,7 @@ returned by `float-time'.  Default value for START-TIME is `'(0 0
   (let* ((failed-test (make-ert-test :body (lambda () (should (= 1 2)))))
          (stats (test-ert-junit-run-tests (list failed-test)))
          (output (ert-junit-testcase stats "failed-test" 0))
-         (testcase (test-ert-junit-xml2dom output))
+         (testcase (test-support-xml2dom output))
          (expected `(testcase ((name . "failed-test")
                                (classname . "ert")
                                (time . "0.000000"))
@@ -200,7 +200,7 @@ returned by `float-time'.  Default value for START-TIME is `'(0 0
 				(failure
 				 ((message . "passed unexpectedly")
 				  (type . "type"))))
-	 (test-ert-junit-xml2dom (ert-junit-testcase stats "unexpected-ok" 0)))))
+     (test-support-xml2dom (ert-junit-testcase stats "unexpected-ok" 0)))))
 
 (ert-deftest test-ert-junit-testcase-4 ()
   "Check expected fail."
@@ -217,7 +217,7 @@ returned by `float-time'.  Default value for START-TIME is `'(0 0
                   (type . "type"))
                  "(ert-test-failed\n ((should nil)\n  :form nil :value nil))"
                  ))
-     (test-ert-junit-xml2dom (ert-junit-testcase stats "expected-fail" 0)))))
+     (test-support-xml2dom (ert-junit-testcase stats "expected-fail" 0)))))
 
 (ert-deftest test-ert-junit-testcase-5 ()
   "Check skipped tests."
@@ -238,7 +238,7 @@ returned by `float-time'.  Default value for START-TIME is `'(0 0
                   (type . "type"))
                  "(ert-test-skipped\n ((skip-unless\n   (= 1 2))\n  :form\n  (= 1 2)\n  :value nil))"
                  ))
-     (test-ert-junit-xml2dom (ert-junit-testcase stats "skipped-unless" 0)))
+     (test-support-xml2dom (ert-junit-testcase stats "skipped-unless" 0)))
     (should-equal-normalized
      '(testcase ((name . "skipped-string")
                  (classname . "ert")
@@ -247,7 +247,7 @@ returned by `float-time'.  Default value for START-TIME is `'(0 0
                  ((message . "skip")
                   (type . "type"))
                  "(ert-test-skipped \"skip\")"))
-     (test-ert-junit-xml2dom (ert-junit-testcase stats "skipped-string" 1)))
+     (test-support-xml2dom (ert-junit-testcase stats "skipped-string" 1)))
     (should-equal-normalized
      '(testcase ((name . "skipped-data")
                  (classname . "ert")
@@ -256,7 +256,7 @@ returned by `float-time'.  Default value for START-TIME is `'(0 0
                  ((message . "(= 1 2)")
                   (type . "type"))
                  "(ert-test-skipped\n (= 1 2))"))
-     (test-ert-junit-xml2dom (ert-junit-testcase stats "skipped-data" 2)))
+     (test-support-xml2dom (ert-junit-testcase stats "skipped-data" 2)))
     ))
 
 (ert-deftest test-ert-junit-testcase-6 ()
@@ -286,19 +286,19 @@ returned by `float-time'.  Default value for START-TIME is `'(0 0
                  (time . "0.000000"))
                 (error ((type . "type")
                         (message . "Unexpected"))))
-     (test-ert-junit-xml2dom (ert-junit-testcase stats "error-test" 0)))
+     (test-support-xml2dom (ert-junit-testcase stats "error-test" 0)))
     (should-equal-normalized
      '(testcase ((name . "signal-test")
                  (classname . "ert")
                  (time . "0.000000"))
                 (error ((type . "type")
                         (message . "Unexpected user-error"))))
-     (test-ert-junit-xml2dom (ert-junit-testcase stats "signal-test" 1)))
+     (test-support-xml2dom (ert-junit-testcase stats "signal-test" 1)))
     (should-equal-normalized
      '(testcase ((name . "expected-error")
                  (classname . "ert")
                  (time . "0.000000")))
-     (test-ert-junit-xml2dom (ert-junit-testcase stats "expected-error" 2)))
+     (test-support-xml2dom (ert-junit-testcase stats "expected-error" 2)))
     (should-equal-normalized
      `(testcase ((name . "wrong-error")
                  (classname . "ert")
@@ -316,7 +316,7 @@ returned by `float-time'.  Default value for START-TIME is `'(0 0
                            (if (version< emacs-version "24")
                                "signalled" "signaled")
                            " did not have the expected type\"))")))
-     (test-ert-junit-xml2dom (ert-junit-testcase stats "wrong-error" 3)))
+     (test-support-xml2dom (ert-junit-testcase stats "wrong-error" 3)))
     ))
 
 (ert-deftest test-ert-junit-testcase-8-quit ()
@@ -330,7 +330,7 @@ returned by `float-time'.  Default value for START-TIME is `'(0 0
                  (classname . "ert")
                  (time . "0.000000"))
                 (failure () "quit"))
-     (test-ert-junit-xml2dom quit-xml))))
+     (test-support-xml2dom quit-xml))))
 
 (defun mock-ert-junit-testcase (stats test-name test-index)
   "STATS TEST-NAME TEST-INDEX."
@@ -376,7 +376,7 @@ Function `ert-junit-testcase' and function `system-name' are mocked."
                :stamp "2018-05-09 00:25:00+0000"
                :host "mock"
                :time "120.000000"))
-           (test-ert-junit-xml2dom (buffer-substring (line-end-position) (point-max))))
+           (test-support-xml2dom (buffer-substring (line-end-position) (point-max))))
           ))))
 
 (ert-deftest test-ert-junit-generate-report-2 ()
@@ -411,7 +411,7 @@ Function `ert-junit-testcase' and function `system-name' are mocked."
                :err (if test-ert-junit-has-skipped 1 2)
                :skip (if test-ert-junit-has-skipped 1 0)
                :time  "120.000000"))
-           (test-ert-junit-xml2dom (buffer-substring (line-end-position) (point-max))))
+           (test-support-xml2dom (buffer-substring (line-end-position) (point-max))))
           ))))
 
 (provide 'test-ert-junit)

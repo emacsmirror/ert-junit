@@ -136,7 +136,7 @@ If SKIP is non-nil, include the `skip' attribute."
     (cddr node))
   )
 
-(defun test-ert-junit-xml2dom (xmlstring)
+(defun test-support-xml2dom (xmlstring)
   "Parse XMLSTRING and return a dom object."
   (let ((dom (with-temp-buffer
                (insert xmlstring)
@@ -150,7 +150,7 @@ If SKIP is non-nil, include the `skip' attribute."
       (setq dom (car dom)))
     dom))
 
-(defun test-ert-junit-normalize-dom (dom)
+(defun test-support-normalize-dom (dom)
   "Normalize a DOM.
 Sort the attribute list by attribute name and remove any child
 nodes that are pure whitespace strings."
@@ -164,7 +164,7 @@ nodes that are pure whitespace strings."
                       collect child
                     end
                   else
-                  collect (test-ert-junit-normalize-dom child))))
+                  collect (test-support-normalize-dom child))))
     (when children
       (setcdr (cdr node) children))
     node))
