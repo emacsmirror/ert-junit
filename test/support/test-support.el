@@ -121,6 +121,8 @@ If SKIP is non-nil, include the `skip' attribute."
 
 ;;; Functions to compare esxml/dom structures
 
+(require 'dom nil t)
+
 ;; Introduced in Emacs 25.1
 (unless (require 'dom nil t)
   ;; these defuns are not as robust as those in dom.el, but should
