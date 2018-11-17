@@ -36,6 +36,7 @@
     ))
 (require 'xml)
 (require 'test-support)
+(setq junit-default-class "ert")
 
 ;; For Emacs 23.4
 (unless (fboundp 'cl-incf) (defalias 'cl-incf 'incf))
@@ -165,9 +166,7 @@ returned by `float-time'.  Default value for START-TIME is `'(0 0
   (let* ((passing-test (make-ert-test :body (lambda () (should t))))
          (stats (test-ert-junit-run-tests (list passing-test))))
 	(should-equal-normalized
-     '(testcase ((name . "passing-test")
-				 (classname . "ert")
-				 (time . "0.000000")))
+     (testcase "passing-test" :time "0.000000")
      (test-support-xml2dom (ert-junit-testcase stats "passing-test" 0)))))
 
 (ert-deftest test-ert-junit-testcase-2-failed ()
@@ -177,13 +176,12 @@ returned by `float-time'.  Default value for START-TIME is `'(0 0
          (stats (test-ert-junit-run-tests (list failed-test)))
          (output (ert-junit-testcase stats "failed-test" 0))
          (testcase (test-support-xml2dom output))
-         (expected `(testcase ((name . "failed-test")
-                               (classname . "ert")
-                               (time . "0.000000"))
-                              (failure
-                               ((message . "test")
-                                (type . "type"))
-                               "(ert-test-failed\n ((should\n   (= 1 2))\n  :form\n  (= 1 2)\n  :value nil))"))))
+         (expected (testcase "failed-test"
+                     :time "0.000000"
+                     '(failure
+                       ((message . "test")
+                        (type . "type"))
+                       "(ert-test-failed\n ((should\n   (= 1 2))\n  :form\n  (= 1 2)\n  :value nil))"))))
     (should-equal-normalized expected testcase)))
 
 
@@ -194,12 +192,11 @@ returned by `float-time'.  Default value for START-TIME is `'(0 0
                                        :body (lambda () (should t))))
          (stats (test-ert-junit-run-tests (list unexpected-ok))))
 	(should-equal-normalized
-	 '(testcase ((name . "unexpected-ok")
-				 (classname . "ert")
-				 (time . "0.000000"))
-				(failure
-				 ((message . "passed unexpectedly")
-				  (type . "type"))))
+     (testcase "unexpected-ok"
+       :time "0.000000"
+       '(failure
+         ((message . "passed unexpectedly")
+          (type . "type"))))
      (test-support-xml2dom (ert-junit-testcase stats "unexpected-ok" 0)))))
 
 (ert-deftest test-ert-junit-testcase-4 ()
@@ -209,14 +206,13 @@ returned by `float-time'.  Default value for START-TIME is `'(0 0
                                        :body (lambda () (should nil))))
          (stats (test-ert-junit-run-tests (list expected-fail))))
 	(should-equal-normalized
-     '(testcase ((name . "expected-fail")
-				 (classname . "ert")
-				 (time . "0.000000"))
-				(failure
-                 ((message . "test")
-                  (type . "type"))
-                 "(ert-test-failed\n ((should nil)\n  :form nil :value nil))"
-                 ))
+     (testcase "expected-fail"
+       :time "0.000000"
+       '(failure
+         ((message . "test")
+          (type . "type"))
+         "(ert-test-failed\n ((should nil)\n  :form nil :value nil))"
+         ))
      (test-support-xml2dom (ert-junit-testcase stats "expected-fail" 0)))))
 
 (ert-deftest test-ert-junit-testcase-5 ()
@@ -230,32 +226,29 @@ returned by `float-time'.  Default value for START-TIME is `'(0 0
          (skipped-data (make-ert-test :body (lambda () (ert-skip '(= 1 2)))))
          (stats (test-ert-junit-run-tests (list skipped-unless skipped-string skipped-data))))
     (should-equal-normalized
-     '(testcase ((name . "skipped-unless")
-                 (classname . "ert")
-                 (time . "0.000000"))
-                (skipped
-                 ((message . "(= 1 2)")
-                  (type . "type"))
-                 "(ert-test-skipped\n ((skip-unless\n   (= 1 2))\n  :form\n  (= 1 2)\n  :value nil))"
-                 ))
+     (testcase "skipped-unless"
+       :time  "0.000000"
+       '(skipped
+         ((message . "(= 1 2)")
+          (type . "type"))
+         "(ert-test-skipped\n ((skip-unless\n   (= 1 2))\n  :form\n  (= 1 2)\n  :value nil))"
+         ))
      (test-support-xml2dom (ert-junit-testcase stats "skipped-unless" 0)))
     (should-equal-normalized
-     '(testcase ((name . "skipped-string")
-                 (classname . "ert")
-                 (time . "0.000000"))
-                (skipped
-                 ((message . "skip")
-                  (type . "type"))
-                 "(ert-test-skipped \"skip\")"))
+     (testcase "skipped-string"
+       :time  "0.000000"
+       '(skipped
+         ((message . "skip")
+          (type . "type"))
+         "(ert-test-skipped \"skip\")"))
      (test-support-xml2dom (ert-junit-testcase stats "skipped-string" 1)))
     (should-equal-normalized
-     '(testcase ((name . "skipped-data")
-                 (classname . "ert")
-                 (time . "0.000000"))
-                (skipped
-                 ((message . "(= 1 2)")
-                  (type . "type"))
-                 "(ert-test-skipped\n (= 1 2))"))
+     (testcase "skipped-data"
+       :time "0.000000"
+       '(skipped
+         ((message . "(= 1 2)")
+          (type . "type"))
+         "(ert-test-skipped\n (= 1 2))"))
      (test-support-xml2dom (ert-junit-testcase stats "skipped-data" 2)))
     ))
 
@@ -281,41 +274,36 @@ returned by `float-time'.  Default value for START-TIME is `'(0 0
          (stats (test-ert-junit-run-tests
                  (list error-test signal-test expected-error wrong-error))))
     (should-equal-normalized
-     '(testcase ((name . "error-test")
-                 (classname . "ert")
-                 (time . "0.000000"))
-                (error ((type . "type")
-                        (message . "Unexpected"))))
+     (testcase "error-test"
+       :time "0.000000"
+       '(error ((type . "type")
+                (message . "Unexpected"))))
      (test-support-xml2dom (ert-junit-testcase stats "error-test" 0)))
     (should-equal-normalized
-     '(testcase ((name . "signal-test")
-                 (classname . "ert")
-                 (time . "0.000000"))
-                (error ((type . "type")
-                        (message . "Unexpected user-error"))))
+     (testcase "signal-test"
+       :time "0.000000"
+       '(error ((type . "type")
+                (message . "Unexpected user-error"))))
      (test-support-xml2dom (ert-junit-testcase stats "signal-test" 1)))
     (should-equal-normalized
-     '(testcase ((name . "expected-error")
-                 (classname . "ert")
-                 (time . "0.000000")))
+     (testcase "expected-error" :time  "0.000000")
      (test-support-xml2dom (ert-junit-testcase stats "expected-error" 2)))
     (should-equal-normalized
-     `(testcase ((name . "wrong-error")
-                 (classname . "ert")
-                 (time . "0.000000"))
-                (failure ((type . "type")
-                          (message . "test"))
-                         ,(concat
-                           "(ert-test-failed\n ((should-error\n"
-                           "   (error \"Wrong type\")\n"
-                           "   :type 'user-error)\n  :form\n"
-                           "  (error \"Wrong type\")\n"
-                           "  :condition\n  (error \"Wrong type\")\n  "
-                           ":fail-reason \"the error "
-                           ;; Spelling of signalled changed in Emacs 24
-                           (if (version< emacs-version "24")
-                               "signalled" "signaled")
-                           " did not have the expected type\"))")))
+     (testcase "wrong-error"
+       :time  "0.000000"
+       `(failure ((type . "type")
+                  (message . "test"))
+                 ,(concat
+                   "(ert-test-failed\n ((should-error\n"
+                   "   (error \"Wrong type\")\n"
+                   "   :type 'user-error)\n  :form\n"
+                   "  (error \"Wrong type\")\n"
+                   "  :condition\n  (error \"Wrong type\")\n  "
+                   ":fail-reason \"the error "
+                   ;; Spelling of signalled changed in Emacs 24
+                   (if (version< emacs-version "24")
+                       "signalled" "signaled")
+                   " did not have the expected type\"))")))
      (test-support-xml2dom (ert-junit-testcase stats "wrong-error" 3)))
     ))
 
@@ -326,10 +314,9 @@ returned by `float-time'.  Default value for START-TIME is `'(0 0
          (stats (test-ert-junit-run-tests (list quit-test)))
          (quit-xml (ert-junit-testcase stats "quit-test" 0)))
     (should-equal-normalized
-     '(testcase ((name . "quit-test")
-                 (classname . "ert")
-                 (time . "0.000000"))
-                (failure () "quit"))
+     (testcase "quit-test"
+       :time "0.000000"
+       '(failure () "quit"))
      (test-support-xml2dom quit-xml))))
 
 (defun mock-ert-junit-testcase (stats test-name test-index)
