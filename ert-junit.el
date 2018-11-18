@@ -6,7 +6,7 @@
 ;; Maintainer: Ola Nilsson <ola.nilsson@gmail.com>
 ;; Created: Jul 24 2014
 ;; Keywords: tools test unittest ert
-;; Version: 0.3.1
+;; Version: 0.4.0
 ;; Package-Requires: ((ert "0") (emacs "23.4"))
 ;; URL: http://bitbucket.org/olanilsson/ert-junit
 
