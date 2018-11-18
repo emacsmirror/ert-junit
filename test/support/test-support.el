@@ -34,7 +34,7 @@
 
 ;;; Code:
 
-(require 'cl-lib)
+(eval-and-compile (require 'cl))
 
 ;;; Functions to create expected esxml/dom structures
 
@@ -48,7 +48,7 @@
 (defun test-support--remove-keys (rest-list &rest keys)
   "Remove all key-value pairs from REST-LIST for all KEYS.
 Useful to remove &key arguments from a &rest argument in
-`cl-defun's and `cl-defmacro's.
+`defun*'s and `defmacro*'s.
 
 Example:
  (test-support--remove-keys '(1 :foo 2 3) :foo :bar)
@@ -69,7 +69,7 @@ CONTAINS should be the contained esxml lists."
       `(testsuites nil ,@contains)
     '(testsuites nil)))
 
-(cl-defun testsuite (name
+(defun* testsuite (name
                      &rest contains
                      &key (fail 0) (err 0) (skip 0) (tests (+ fail skip err))
                      (stamp junit-timestamp-re)
@@ -103,7 +103,7 @@ TIME is the elapsed time in seconds, default `[0-9]+\\.[0-9]+'."
     ,@(test-support--remove-keys contains :fail :err :skip
                                          :tests :stamp :host :time)))
 
-(cl-defun testcase (name &rest contains &key (class junit-default-class)
+(defun* testcase (name &rest contains &key (class junit-default-class)
                          (time "[0-9]+\\.[0-9]+") skip &allow-other-keys)
   "Return an esxml list for a testcase tag.
 NAME is the spec description.
