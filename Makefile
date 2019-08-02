@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2017 Ola Nilsson <ola.nilsson@gmail.com>
+# Copyright (C) 2015-2019 Ola Nilsson <ola.nilsson@gmail.com>
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -70,7 +70,7 @@ ifneq (,$(filter cicheck%,$(MAKECMDGOALS)))
 .NOTPARALLEL:
 endif
 
-cichecks = $(addprefix cicheck_,24.3 24.4 24.5 25.1 25.2 25.3 26.1-rc1 master)
+cichecks = $(addprefix cicheck_,24.3 24.4 24.5 25.1 25.2 25.3 26.1 26.2 26.3 master)
 cicheck: $(cichecks)
 	@echo $@ successful!
 
