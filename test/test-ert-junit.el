@@ -1,6 +1,6 @@
 ;;; test-ert-junit.el --- ERT tests for ert-junit    -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2018  Ola Nilsson
+;; Copyright (C) 2018, 2019  Ola Nilsson
 
 ;; Author: Ola Nilsson <ola.nilsson@gmail.com>
 ;; Keywords:
@@ -35,7 +35,7 @@
     `(with-temp-buffer ,@body)
     ))
 (require 'xml)
-(require 'test-support)
+(load "support/test-support")
 (setq junit-default-class "ert")
 
 ;; For Emacs 23.4
