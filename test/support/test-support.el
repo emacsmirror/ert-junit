@@ -1,6 +1,6 @@
 ;;; test-support.el --- JUnit test support  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2018  Ola Nilsson
+;; Copyright (C) 2018, 2019  Ola Nilsson
 
 ;; Author: Ola Nilsson <ola.nilsson@gmail.com>
 ;; Maintainer: Ola Nilsson <ola.nilsson@gmail.com>
@@ -171,8 +171,8 @@ nodes that are pure whitespace strings."
       (setcdr (cdr node) children))
     node))
 
-(provide 'test-support)
 ;;; test-support.el ends here
 ;; Local Variables:
+;; byte-compile-warnings: (not cl-functions)
 ;; indent-tabs-mode: nil
 ;; End:
